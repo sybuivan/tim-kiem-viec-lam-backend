@@ -7,6 +7,7 @@ class ApiError extends Error {
     if (stack) {
       this.stack = stack;
     } else {
+      console.log('banasd');
       Error.captureStackTrace(this, this.constructor);
     }
   }

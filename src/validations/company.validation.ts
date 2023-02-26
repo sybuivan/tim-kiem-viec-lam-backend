@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { messageRequired } from '../utils/comon';
 
-const authValidation = {
+const companyValidation = {
   login: {
     body: Joi.object().keys({
       email: Joi.string().required().email(),
@@ -10,10 +10,15 @@ const authValidation = {
   },
   register: {
     body: Joi.object().keys({
-      fullName: Joi.string().required(),
       email: Joi.string().required().email(),
-      password: Joi.string().required(),
       id_role: Joi.string().required(),
+      name_company: Joi.string().required(),
+      address: Joi.string().required(),
+      total_people: Joi.number().required(),
+      introduce: Joi.string().required(),
+      lat: Joi.number().required(),
+      lng: Joi.number().required(),
+      password: Joi.string().required(),
     }),
   },
 
@@ -32,4 +37,4 @@ const authValidation = {
   },
 };
 
-export default authValidation;
+export default companyValidation;

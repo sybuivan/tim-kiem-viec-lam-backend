@@ -3,17 +3,18 @@ import { IUser } from '../types/auth';
 import queryDb from '../configs/db';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import { OkPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
+import { ICompany } from '../types/company';
+import { IPayloadLogin } from '../types/common';
 
 var _ = require('lodash');
 var bcrypt = require('bcrypt');
 
 const saltRounds = 10;
 
-const authService = {
-  login: async (body: IUser) => {
+const companyService = {
+  login: async (body: IPayloadLogin) => {
     const { email, password } = body;
-    const user: any = await queryDb('select * from users where email=?', [
+    const user: any = await queryDb('select * from company where email=?', [
       email,
     ]);
     if (_.isEmpty(user))
@@ -36,36 +37,49 @@ const authService = {
     }
   },
 
-  register: async (body: IUser) => {
-    const { email, fullName, password, id_role } = body;
-    const id_user = uniqid();
-    console.log({ email, fullName, password, id_role });
-
-    const user: any = await queryDb('select * from users where email=?', [
+  register: async (body: ICompany) => {
+    const {
+      password,
+      id_role,
       email,
-    ]);
+      address,
+      introduce,
+      lat,
+      lng,
+      name_company,
+      total_people,
+    } = body;
+    const id_company = uniqid();
+
+    const user: any = await queryDb(
+      'select * from company where email=? and id_role=?',
+      [email, id_role]
+    );
     if (!_.isEmpty(user))
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Tài khoản người dùng đã tồn tại'
-      );
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Tài khoản đã tồn tại');
     const hashPassword = await bcrypt.hash(password, saltRounds);
+
     const rows: any = await queryDb(
-      'insert into users(email, fullName, password, id_role, id_user) values(?,?,?,?,?)',
-      [email, fullName, hashPassword, id_role, id_user]
+      'insert into company(id_company,password,id_role,email,address,introduce,lat,lng,name_company,total_people) values(?,?,?,?,?,?,?,?,?,?)',
+      [
+        id_company,
+        hashPassword,
+        id_role,
+        email,
+        address,
+        introduce,
+        lat,
+        lng,
+        name_company,
+        total_people,
+      ]
     );
     if (rows.insertId >= 0) {
-      const users: any = await queryDb('select * from users where email=?', [
-        email,
-      ]);
-      const { password, ...orther } = users[0];
-      return {
-        users: orther,
-      };
+      return;
     } else {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        'Tạo tài khoản không thành công'
+        'Đăng ký tài khoản không thành công'
       );
     }
   },
@@ -111,4 +125,4 @@ const authService = {
   },
 };
 
-export default authService;
+export default companyService;
