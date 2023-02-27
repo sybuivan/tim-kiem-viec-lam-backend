@@ -5,7 +5,11 @@ import validate from '../middlewares/validate';
 import companyValidation from '../validations/company.validation';
 const router = express.Router();
 
-router.post('/login', validate(companyValidation.login), authController.login);
+router.post(
+  '/login',
+  validate(companyValidation.login),
+  companyController.login
+);
 router.post(
   '/register',
   validate(companyValidation.register),

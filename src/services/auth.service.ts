@@ -37,9 +37,9 @@ const authService = {
   },
 
   register: async (body: IUser) => {
-    const { email, fullName, password, id_role } = body;
+    const { email, fullName, password } = body;
     const id_user = uniqid();
-    console.log({ email, fullName, password, id_role });
+    const id_role = 'user';
 
     const user: any = await queryDb('select * from users where email=?', [
       email,
@@ -80,7 +80,7 @@ const authService = {
       city,
       id_user,
       address,
-      avatar,
+      avatar = 'avatar.jpg',
     } = body;
     const user: any = await queryDb('select * from users where id_user=?', [
       id_user,
@@ -91,7 +91,7 @@ const authService = {
         'Không tìm thấy tài khoản người dùng'
       );
     const rows: any = await queryDb(
-      'UPDATE users set fullName = ?, birthDate= ?, adress= ?, phone= ?, gender= ?, city= ?, avatar= ? where id_user = ?',
+      'UPDATE users set fullName = ?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ? where id_user = ?',
       [fullName, birthDay, address, phone, gender, city, avatar, id_user]
     );
     if (rows.insertId >= 0) {

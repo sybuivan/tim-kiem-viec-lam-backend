@@ -13,7 +13,7 @@ const authValidation = {
       fullName: Joi.string().required(),
       email: Joi.string().required().email(),
       password: Joi.string().required(),
-      id_role: Joi.string().required(),
+      // id_role: Joi.string().required(),
     }),
   },
 
@@ -27,7 +27,7 @@ const authValidation = {
       city: Joi.string().required(),
       id_user: Joi.string().required(),
       address: Joi.string().required(),
-      avatar: Joi.string().required(),
+      // avatar: Joi.string().required(),
     }),
   },
 };
