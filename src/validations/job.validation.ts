@@ -16,6 +16,7 @@ export const jobValidation = {
       description_job: Joi.string().required(),
       required_job: Joi.string().required(),
       work_location: Joi.string().required(),
+      urgent_recruitment: Joi.number().required(),
     }),
   },
   updateJob: {
@@ -32,6 +33,7 @@ export const jobValidation = {
       description_job: Joi.string().required(),
       required_job: Joi.string().required(),
       work_location: Joi.string().required(),
+      urgent_recruitment: Joi.number().required(),
     }),
     params: Joi.object().keys({
       id_job: Joi.string().required(),

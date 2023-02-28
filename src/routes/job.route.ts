@@ -25,5 +25,6 @@ router.get(
   '/get-jobs-by-company/:id_company',
   jobController.getJobListByCompany
 );
+router.get('/get-list-job', jobController.getListJob);
 
 export default router;

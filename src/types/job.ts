@@ -14,4 +14,5 @@ export interface IJob {
   required_job: string;
   created_at: Date | string;
   work_location: string;
+  urgent_recruitment: number;
 }

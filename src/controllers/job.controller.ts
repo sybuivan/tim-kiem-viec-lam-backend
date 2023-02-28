@@ -51,6 +51,7 @@ const jobController = {
       }
     }
   ),
+
   getJobListByCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { jobs, totalPost } = await jobService.getJobListByCompany(
@@ -60,6 +61,17 @@ const jobController = {
         res.status(httpStatus.OK).send({
           jobs,
           totalPost,
+        });
+      }
+    }
+  ),
+  getListJob: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { listJob, total } = await jobService.getListJob();
+      if (listJob) {
+        res.status(httpStatus.OK).send({
+          listJob,
+          total,
         });
       }
     }

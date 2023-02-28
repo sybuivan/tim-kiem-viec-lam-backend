@@ -25,9 +25,10 @@ const jobService = {
       required_job,
       total_number,
       work_location,
+      urgent_recruitment,
     } = body;
     const rows: any = await queryDb(
-      'insert into job(created_at,deadline,description_job,id_company,id_experience,id_field,id_range,id_rank,id_type,name_job,required_job,total_number,work_location,id_job) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'insert into job(created_at,deadline,description_job,id_company,id_experience,id_field,id_range,id_rank,id_type,name_job,required_job,total_number,work_location,id_job,urgent_recruitment) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [
         created_at,
         deadline,
@@ -43,6 +44,7 @@ const jobService = {
         total_number,
         work_location,
         id_job,
+        urgent_recruitment,
       ]
     );
     if (rows.insertId >= 0) {
@@ -76,6 +78,7 @@ const jobService = {
       required_job,
       total_number,
       work_location,
+      urgent_recruitment,
     } = body;
     const job: any = await queryDb('select * from job where id_job=?', [
       id_job,
@@ -88,7 +91,7 @@ const jobService = {
       );
 
     const rows: any = await queryDb(
-      'UPDATE job set deadline = ?, description_job= ?, id_company= ?, id_experience= ?, id_field= ?, id_range= ?, id_rank= ?, id_type=?,name_job=?,required_job=?, total_number=?,work_location=? where id_job = ?',
+      'UPDATE job set deadline = ?, description_job= ?, id_company= ?, id_experience= ?, id_field= ?, id_range= ?, id_rank= ?, id_type=?,name_job=?,required_job=?, total_number=?,work_location=?, urgent_recruitment=? where id_job = ?',
       [
         deadline,
         description_job,
@@ -103,6 +106,7 @@ const jobService = {
         required_job,
         total_number,
         work_location,
+        urgent_recruitment,
         id_job,
       ]
     );
@@ -184,6 +188,18 @@ const jobService = {
     return {
       jobs: jobs,
       totalPost: jobs.length,
+    };
+  },
+
+  getListJob: async () => {
+    const rows: any = await queryDb(
+      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range',
+      []
+    );
+
+    return {
+      listJob: rows,
+      total: rows.length,
     };
   },
 };
