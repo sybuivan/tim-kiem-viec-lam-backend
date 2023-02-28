@@ -24,15 +24,16 @@ const companyValidation = {
 
   updateProfile: {
     body: Joi.object().keys({
-      fullName: Joi.string().required(),
       email: Joi.string().required().email(),
-      gender: Joi.string().required(),
-      phone: Joi.string().required(),
-      birthDay: Joi.string().required(),
-      city: Joi.string().required(),
-      id_user: Joi.string().required(),
+      name_company: Joi.string().required(),
       address: Joi.string().required(),
-      avatar: Joi.string().required(),
+      total_people: Joi.number().required(),
+      introduce: Joi.string().required(),
+      logo: Joi.string().required(),
+      link_website: Joi.string().required(),
+      cover_image: Joi.string().required(),
+      lat: Joi.number().required(),
+      lng: Joi.number().required(),
     }),
   },
 };

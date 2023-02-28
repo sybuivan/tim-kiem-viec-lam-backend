@@ -5,6 +5,23 @@ import { IUser } from '../types/auth';
 import { catchAsync } from '../utils/catchAsync';
 
 const authController = {
+  getMe: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      email,
+    }: {
+      email: string;
+    } = req.body;
+    const { user } = await authService.getMe(email);
+
+    if (user) {
+      const { accessToken } = tokenService.generateToken(user);
+
+      res.send({
+        user,
+        accessToken,
+      });
+    }
+  }),
   login: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: IUser = req.body;
     const { users, message } = await authService.login({

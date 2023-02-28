@@ -11,6 +11,22 @@ var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const authService = {
+  getMe: async (email: string) => {
+    const user: any = await queryDb('select * from users where email=?', [
+      email,
+    ]);
+    if (_.isEmpty(user))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Không tìm thấy tài khoản người dùng'
+      );
+
+    const { password, ...orther } = user[0];
+
+    return {
+      user: orther,
+    };
+  },
   login: async (body: IUser) => {
     const { email, password } = body;
     const user: any = await queryDb('select * from users where email=?', [

@@ -17,4 +17,6 @@ router.put(
   authController.updateUser
 );
 
+router.post('/get-me', validate(authValidation.getMe), authController.getMe);
+
 export default router;

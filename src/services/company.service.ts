@@ -3,8 +3,9 @@ import { IUser } from '../types/auth';
 import queryDb from '../configs/db';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import { ICompany } from '../types/company';
+import { ICompany, TActiveStatues } from '../types/company';
 import { IPayloadLogin } from '../types/common';
+import { findCompanyByid } from './common.service';
 
 var _ = require('lodash');
 var bcrypt = require('bcrypt');
@@ -84,37 +85,43 @@ const companyService = {
     }
   },
 
-  updateUser: async (body: IUser) => {
+  updateCompany: async (body: ICompany, id_company: string) => {
     const {
       email,
-      fullName,
-      gender,
-      phone,
-      birthDay,
-      city,
-      id_user,
       address,
-      avatar,
+      introduce,
+      lat,
+      lng,
+      logo,
+      total_people,
+      name_company,
+      cover_image,
+      link_website,
     } = body;
-    const user: any = await queryDb('select * from users where id_user=?', [
-      id_user,
-    ]);
-    if (_.isEmpty(user))
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Không tìm thấy tài khoản người dùng'
-      );
+    const { company } = await findCompanyByid(id_company);
+
     const rows: any = await queryDb(
-      'UPDATE users set fullName = ?, birthDate= ?, adress= ?, phone= ?, gender= ?, city= ?, avatar= ? where id_user = ?',
-      [fullName, birthDay, address, phone, gender, city, avatar, id_user]
+      'UPDATE company set email = ?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,cover_image=?,link_website=? where id_company = ?',
+      [
+        email,
+        address,
+        introduce,
+        lat,
+        lng,
+        logo,
+        total_people,
+        name_company,
+        cover_image,
+        link_website,
+        id_company,
+      ]
     );
     if (rows.insertId >= 0) {
-      const users: any = await queryDb('select * from users where email=?', [
-        email,
-      ]);
-      const { password, ...orther } = users[0];
+      const { company } = await findCompanyByid(id_company);
+
+      const { password, ...orther } = company[0];
       return {
-        users: orther,
+        company: orther,
       };
     } else {
       throw new ApiError(
@@ -122,6 +129,34 @@ const companyService = {
         'Chỉnh sửa thông tin không thành công'
       );
     }
+  },
+
+  getCompanyById: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+
+    const jobs: any = await queryDb(
+      'select id_job,name_range,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=?',
+      [id_company]
+    );
+
+    return {
+      jobs: jobs,
+      total: jobs.length,
+      company,
+    };
+  },
+
+  getCompanyList: async () => {
+    const active_status: TActiveStatues = 'Đã xét duyệt';
+    const companyList: any = await queryDb(
+      'SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob from job, company WHERE job.id_company = company.id_company and company.active_status=? GROUP BY company.id_company',
+      [active_status]
+    );
+
+    return {
+      companyList,
+      total: companyList.length,
+    };
   },
 };
 

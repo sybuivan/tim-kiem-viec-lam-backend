@@ -16,4 +16,12 @@ router.post(
   companyController.register
 );
 
+router.put(
+  '/update-profile/:id_company',
+  validate(companyValidation.updateProfile),
+  companyController.updateCompany
+);
+router.get('/get-company-by-id/:id_company', companyController.getCompanyById);
+router.get('/get-company-list', companyController.getCompanyList);
+
 export default router;

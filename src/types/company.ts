@@ -14,3 +14,5 @@ export interface ICompany {
   email: string;
   password: string;
 }
+
+export type TActiveStatues = 'Đã xét duyệt' | 'Chưa xét duyệt' | 'Đã bị khóa';

@@ -2,6 +2,11 @@ import Joi from 'joi';
 import { messageRequired } from '../utils/comon';
 
 const authValidation = {
+  getMe: {
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+    }),
+  },
   login: {
     body: Joi.object().keys({
       email: Joi.string().required().email(),
