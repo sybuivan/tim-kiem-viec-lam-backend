@@ -160,7 +160,7 @@ const jobService = {
 
   getJobById: async (id_job: string) => {
     const job: any = await queryDb(
-      'select * from job, company where id_job=? and company.id_company and job.id_company',
+      'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_rank and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company and job.id_company and experience.id_experience = job.id_experience',
       [id_job]
     );
     if (_.isEmpty(job))
@@ -192,13 +192,14 @@ const jobService = {
   },
 
   getListJob: async () => {
+    // job có bật req hoặc deadline > 15 day và deadline > ngày hiện tại
     const rows: any = await queryDb(
-      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range',
+      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() - INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
       []
     );
 
     return {
-      listJob: rows,
+      data: rows,
       total: rows.length,
     };
   },

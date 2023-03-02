@@ -67,10 +67,10 @@ const jobController = {
   ),
   getListJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { listJob, total } = await jobService.getListJob();
-      if (listJob) {
+      const { data, total } = await jobService.getListJob();
+      if (data) {
         res.status(httpStatus.OK).send({
-          listJob,
+          data,
           total,
         });
       }

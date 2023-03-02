@@ -10,7 +10,7 @@ import { NextFunction } from 'express';
 var _ = require('lodash');
 
 const userService = {
-  updateUser: async (body: IUser) => {
+  updateUser: async (body: IUser, fileName: string) => {
     const {
       email,
       fullName,
@@ -20,7 +20,7 @@ const userService = {
       city,
       id_user,
       address,
-      avatar = 'avatar.jpg',
+      avatar = `http://localhost:5000/${fileName}`,
     } = body;
     const user: any = await queryDb('select * from users where id_user=?', [
       id_user,
@@ -145,13 +145,11 @@ const userService = {
       [id_user, id_job, created_at]
     );
     if (rows.insertId >= 0) {
-      const saved: any = await queryDb(
-        'select * from savejob where id_user=? and id_job=?',
-        [id_user, id_job]
-      );
+      const { savedList, total } = await userService.getAllSaveJob(id_user);
 
       return {
-        saved,
+        savedList,
+        total,
       };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Saved không thành công');
@@ -187,7 +185,7 @@ const userService = {
 
     if (_.isEmpty(jobs))
       return {
-        saved: [],
+        savedList: [],
         total: 0,
       };
 
@@ -198,7 +196,7 @@ const userService = {
 
     if (rows.length > 0) {
       return {
-        saved: rows,
+        savedList: rows,
         total: rows.length,
       };
     } else {

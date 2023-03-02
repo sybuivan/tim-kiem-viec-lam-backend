@@ -2,11 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 import userService from '../services/user.service';
 import { catchAsync } from '../utils/catchAsync';
+interface MulterRequest extends Request {
+  file: any;
+}
 
 const userController = {
   updateUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { users } = await userService.updateUser(req.body);
+      const { filename } = (req as MulterRequest).file;
+
+      const { users } = await userService.updateUser(req.body, filename);
       if (users) {
         res.status(httpStatus.OK).send({
           users,
@@ -49,13 +54,13 @@ const userController = {
   ),
   getAllSaveJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { saved, total } = await userService.getAllSaveJob(
+      const { savedList, total } = await userService.getAllSaveJob(
         req.params.id_user
       );
 
-      if (saved) {
+      if (savedList) {
         res.status(httpStatus.OK).send({
-          saved,
+          savedList,
           total,
         });
       }
@@ -63,11 +68,12 @@ const userController = {
   ),
   saveJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { saved } = await userService.saveJob(req.body);
+      const { savedList, total } = await userService.saveJob(req.body);
 
-      if (saved) {
+      if (savedList) {
         res.status(httpStatus.OK).send({
-          saved,
+          savedList,
+          total,
         });
       }
     }

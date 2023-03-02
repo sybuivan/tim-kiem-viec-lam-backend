@@ -14,3 +14,5 @@ export interface IUser {
   address?: string;
   avatar?: string;
 }
+
+export type TRole = 'ADMIN' | 'COMPANY' | 'USER';

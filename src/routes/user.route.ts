@@ -4,11 +4,13 @@ import userController from '../controllers/user.controller';
 import validate from '../middlewares/validate';
 import authValidation from '../validations/auth.validation';
 import userValidation from '../validations/user.validation';
+const upload = require('../middlewares/upload');
+
 const router = express.Router();
 
 router.put(
   '/update-profile',
-  validate(userValidation.updateProfile),
+  upload.single('avatar'),
   userController.updateUser
 );
 router.post(

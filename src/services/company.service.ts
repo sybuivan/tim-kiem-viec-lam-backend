@@ -135,14 +135,14 @@ const companyService = {
     const { company } = await findCompanyByid(id_company);
 
     const jobs: any = await queryDb(
-      'select id_job,name_range,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=?',
+      'select id_job,name_range,name_job,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=?',
       [id_company]
     );
 
     return {
       jobs: jobs,
       total: jobs.length,
-      company,
+      company: company[0],
     };
   },
 
