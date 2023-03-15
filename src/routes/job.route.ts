@@ -26,5 +26,6 @@ router.get(
   jobController.getJobListByCompany
 );
 router.get('/get-list-job', jobController.getListJob);
+router.get('/get-list-job-filters', jobController.getLisJobFilters);
 
 export default router;

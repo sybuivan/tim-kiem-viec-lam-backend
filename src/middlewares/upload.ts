@@ -1,7 +1,7 @@
 import { Request } from 'express';
+import { typeFile, typeImage } from '../constants/typeFile';
 
 const multer = require('multer');
-const typeImage = require('../constants/typeFile');
 
 const storage = multer.diskStorage({
   destination: (_req: Request, file: any, callBack: any) => {
@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({
+export const upload = multer({
   storage,
   fileFilter: (_req: Request, file: any, callBack: any) => {
     if (
@@ -29,4 +29,18 @@ const upload = multer({
   },
 });
 
-module.exports = upload;
+export const uploadFile = multer({
+  storage,
+  fileFilter: (_req: Request, file: any, callBack: any) => {
+    if (
+      file.mimetype === typeFile.DOC ||
+      file.mimetype === typeFile.DOCX ||
+      file.mimetype === typeFile.PDF
+    )
+      callBack(null, true);
+    else {
+      callBack(null, false);
+      return callBack(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    }
+  },
+});

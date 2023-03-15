@@ -2,6 +2,9 @@ import authRoute from './auth.route';
 import companyRoute from './company.route';
 import jobRoute from './job.route';
 import useRoute from './user.route';
+import applyRoute from './apply.route';
+import commonRoute from './common.route';
+
 import express from 'express';
 
 const router = express.Router();
@@ -22,6 +25,14 @@ const defaultRoutes = [
   {
     path: '/user',
     route: useRoute,
+  },
+  {
+    path: '/apply',
+    route: applyRoute,
+  },
+  {
+    path: '/common',
+    route: commonRoute,
   },
 ];
 

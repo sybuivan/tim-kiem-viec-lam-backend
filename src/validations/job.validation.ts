@@ -9,6 +9,7 @@ export const jobValidation = {
       id_type: Joi.string().required(),
       id_range: Joi.string().required(),
       id_rank: Joi.string().required(),
+      city: Joi.string().required(),
       id_experience: Joi.string().required(),
       name_job: Joi.string().required(),
       deadline: Joi.date().required(),

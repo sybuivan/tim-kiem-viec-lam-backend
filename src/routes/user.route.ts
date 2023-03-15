@@ -1,10 +1,10 @@
 import express from 'express';
 import { authController } from '../controllers';
 import userController from '../controllers/user.controller';
+import { upload, uploadFile } from '../middlewares/upload';
 import validate from '../middlewares/validate';
 import authValidation from '../validations/auth.validation';
 import userValidation from '../validations/user.validation';
-const upload = require('../middlewares/upload');
 
 const router = express.Router();
 
@@ -12,6 +12,17 @@ router.put(
   '/update-profile',
   upload.single('avatar'),
   userController.updateUser
+);
+router.post(
+  '/create-profile-cv',
+  // validate(userValidation.createProfileCV),
+  uploadFile.single('file_cv'),
+  userController.createCV
+);
+router.get(
+  '/get-profile-cv/:id_user',
+  // validate(userValidation.createProfileCV),
+  userController.getProfileCV
 );
 router.post(
   '/add-follow',

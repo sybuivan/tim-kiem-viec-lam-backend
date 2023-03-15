@@ -38,3 +38,20 @@ export const findJobById = async (id_job: string) => {
   if (_.isEmpty(jobId))
     throw new ApiError(httpStatus.BAD_REQUEST, 'Không tìm thấy job');
 };
+
+export const getAllFieldService = async () => {
+  const companyfield: any = await queryDb('select * from companyfield');
+  const experiencefield: any = await queryDb('select * from experience');
+  const rangewagefield: any = await queryDb('select * from rangewage');
+  const typerankfield: any = await queryDb('select * from typerank');
+  const workingformfield: any = await queryDb('select * from working_form');
+  const cityfield: any = await queryDb('select * from city');
+  return {
+    companyfield,
+    experiencefield,
+    rangewagefield,
+    typerankfield,
+    workingformfield,
+    cityfield,
+  };
+};

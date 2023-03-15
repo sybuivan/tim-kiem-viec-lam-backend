@@ -15,6 +15,20 @@ const userValidation = {
       // avatar: Joi.string().required(),
     }),
   },
+  createProfileCV: {
+    body: Joi.object().keys({
+      id_user: Joi.string().required(),
+      id_type_current: Joi.string().required(),
+      id_working_form: Joi.string().required(),
+      id_company_field: Joi.string().required(),
+      id_type_desired: Joi.string().required(),
+      career_goals: Joi.string().required(),
+      desired_salary: Joi.number().required(),
+      id_experience: Joi.string().required(),
+      is_public: Joi.number().required(),
+      file_cv: Joi.string().required(),
+    }),
+  },
   followCompany: {
     body: Joi.object().keys({
       id_user: Joi.string().required(),

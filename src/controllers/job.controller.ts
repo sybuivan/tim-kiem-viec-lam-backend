@@ -8,6 +8,16 @@ interface QueryDelete {
   id_company: string;
 }
 
+interface IQueryJob {
+  city: string;
+  companyfield: string;
+  keyword: string;
+  id_range: string;
+  id_experience: string;
+  id_rank: string;
+  page: number;
+}
+
 const jobController = {
   createJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -68,6 +78,20 @@ const jobController = {
   getListJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { data, total } = await jobService.getListJob();
+      if (data) {
+        res.status(httpStatus.OK).send({
+          data,
+          total,
+        });
+      }
+    }
+  ),
+
+  getLisJobFilters: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { data, total } = await jobService.getLisJobFilters(
+        req.query as unknown as IQueryJob
+      );
       if (data) {
         res.status(httpStatus.OK).send({
           data,

@@ -7,6 +7,8 @@ import { IUser } from '../types/auth';
 import { IJob } from '../types/job';
 import ApiError from '../utils/ApiError';
 
+const LIMIT = 20;
+
 const jobService = {
   createJob: async (body: IJob) => {
     const id_job = uniqid();
@@ -14,7 +16,7 @@ const jobService = {
       created_at = new Date(),
       deadline = new Date(),
       description_job,
-      // id_city,
+      city,
       id_company,
       id_experience,
       id_field,
@@ -28,8 +30,9 @@ const jobService = {
       urgent_recruitment,
     } = body;
     const rows: any = await queryDb(
-      'insert into job(created_at,deadline,description_job,id_company,id_experience,id_field,id_range,id_rank,id_type,name_job,required_job,total_number,work_location,id_job,urgent_recruitment) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'insert into job(city,created_at,deadline,description_job,id_company,id_experience,id_field,id_range,id_rank,id_type,name_job,required_job,total_number,work_location,id_job,urgent_recruitment) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [
+        city,
         created_at,
         deadline,
         description_job,
@@ -160,7 +163,7 @@ const jobService = {
 
   getJobById: async (id_job: string) => {
     const job: any = await queryDb(
-      'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_rank and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company and job.id_company and experience.id_experience = job.id_experience',
+      'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_rank and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company = job.id_company and experience.id_experience = job.id_experience',
       [id_job]
     );
     if (_.isEmpty(job))
@@ -194,13 +197,61 @@ const jobService = {
   getListJob: async () => {
     // job có bật req hoặc deadline > 15 day và deadline > ngày hiện tại
     const rows: any = await queryDb(
-      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() - INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
+      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() + INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
       []
     );
 
     return {
       data: rows,
       total: rows.length,
+    };
+  },
+
+  getLisJobFilters: async (queryParams: {
+    city: string;
+    companyfield: string;
+    keyword: string;
+    id_range: string;
+    id_experience: string;
+    id_rank: string;
+    page: number;
+  }) => {
+    const {
+      city,
+      companyfield,
+      keyword = '',
+      id_range = '',
+      id_experience = '',
+      id_rank = '',
+      page = 1,
+    } = queryParams;
+    const sqlCompanyfield =
+      companyfield && `and job.id_field='${companyfield}'`;
+    const sqlCity = city && `and job.city = '${city}'`;
+    const sqlKeyword = keyword && `and job.name_job = '${keyword}' `;
+    const sqlId_range = id_range && `and job.id_range = '${id_range}'`;
+    const sql_id_experience =
+      id_experience && `and job.id_experience = '${id_experience}'`;
+    const sql_id_rank = id_rank && `and job.id_rank = '${id_rank}'`;
+    const sql_limit =
+      page == 1 ? `LIMIT 0,${LIMIT}` : `LIMIT ${(page - 1) * LIMIT},${LIMIT}`;
+    console.log({
+      sql: `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
+    });
+    const rows: any = await queryDb(
+      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
+      []
+    );
+
+    const rowsList: any = await queryDb(
+      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}`,
+      []
+    );
+
+    console.log({ rowsList: rowsList.length });
+    return {
+      data: rows,
+      total: rowsList.length,
     };
   },
 };

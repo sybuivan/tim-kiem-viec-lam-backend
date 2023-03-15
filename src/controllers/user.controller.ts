@@ -9,12 +9,53 @@ interface MulterRequest extends Request {
 const userController = {
   updateUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { filename } = (req as MulterRequest).file;
+      const isFile = (req as MulterRequest)?.file;
 
-      const { users } = await userService.updateUser(req.body, filename);
-      if (users) {
+      if (!isFile) {
+        const { users } = await userService.updateUser(req.body);
+        if (users) {
+          res.status(httpStatus.OK).send({
+            users,
+          });
+        }
+      } else {
+        const { filename } = (req as MulterRequest)?.file;
+        const { users } = await userService.updateUser(req.body, filename);
+        if (users) {
+          res.status(httpStatus.OK).send({
+            users,
+          });
+        }
+      }
+    }
+  ),
+  createCV: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const isFile = (req as MulterRequest)?.file;
+      if (!isFile) {
+        const { profile_cv } = await userService.createCV(req.body);
+        if (profile_cv) {
+          res.status(httpStatus.OK).send({
+            profile_cv,
+          });
+        }
+      } else {
+        const { filename } = (req as MulterRequest)?.file;
+        const { profile_cv } = await userService.createCV(req.body, filename);
+        if (profile_cv) {
+          res.status(httpStatus.OK).send({
+            profile_cv,
+          });
+        }
+      }
+    }
+  ),
+  getProfileCV: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { profile_cv } = await userService.getProfileCV(req.params.id_user);
+      if (profile_cv) {
         res.status(httpStatus.OK).send({
-          users,
+          profile_cv,
         });
       }
     }

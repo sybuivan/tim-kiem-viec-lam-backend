@@ -1,7 +1,7 @@
 export interface IJob {
   id_job?: string;
   id_company: string;
-  id_city: string;
+  city: string;
   id_field: string;
   id_type: string;
   id_range: string;

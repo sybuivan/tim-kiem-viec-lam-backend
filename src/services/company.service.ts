@@ -134,6 +134,11 @@ const companyService = {
   getCompanyById: async (id_company: string) => {
     const { company } = await findCompanyByid(id_company);
 
+    const followere: any = await queryDb(
+      'select id_user from follow where id_company=?',
+      [id_company]
+    );
+
     const jobs: any = await queryDb(
       'select id_job,name_range,name_job,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=?',
       [id_company]
@@ -143,6 +148,7 @@ const companyService = {
       jobs: jobs,
       total: jobs.length,
       company: company[0],
+      followere: followere,
     };
   },
 

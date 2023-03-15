@@ -3,14 +3,14 @@ import { IUser } from '../types/auth';
 import queryDb from '../configs/db';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import { IPayloadFollow, IPayloadSaveJob } from '../types/users';
+import { IPayLoadCV, IPayloadFollow, IPayloadSaveJob } from '../types/users';
 import { findJobById, findUserByid } from './common.service';
 import { NextFunction } from 'express';
 
 var _ = require('lodash');
 
 const userService = {
-  updateUser: async (body: IUser, fileName: string) => {
+  updateUser: async (body: IUser, fileName?: string) => {
     const {
       email,
       fullName,
@@ -20,19 +20,29 @@ const userService = {
       city,
       id_user,
       address,
-      avatar = `http://localhost:5000/${fileName}`,
+      avatar,
     } = body;
+
+    let avatarFile = '';
+
     const user: any = await queryDb('select * from users where id_user=?', [
       id_user,
     ]);
+
+    if (fileName) {
+      avatarFile = `http://localhost:5000/${fileName}`;
+    } else {
+      avatarFile = user[0].avatar;
+    }
+
     if (_.isEmpty(user))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         'Không tìm thấy tài khoản người dùng'
       );
     const rows: any = await queryDb(
-      'UPDATE users set fullName = ?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ? where id_user = ?',
-      [fullName, birthDay, address, phone, gender, city, avatar, id_user]
+      'UPDATE users set fullName = ?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ?, is_update_profle=? where id_user = ?',
+      [fullName, birthDay, address, phone, gender, city, avatarFile, 1, id_user]
     );
     if (rows.insertId >= 0) {
       const users: any = await queryDb('select * from users where email=?', [
@@ -49,6 +59,121 @@ const userService = {
       );
     }
   },
+
+  createCV: async (body: IPayLoadCV, fileName?: string) => {
+    const {
+      career_goals,
+      id_experience,
+      desired_salary,
+      id_type_current,
+      id_type_desired,
+      id_user,
+      is_public,
+      id_working_form,
+      id_company_field,
+      file_name,
+      created_at = new Date(),
+    } = body;
+
+    await findUserByid(id_user);
+
+    const user: any = await queryDb(
+      'select * from profile_cv where id_user=?',
+      [id_user]
+    );
+    let fileCV = '';
+    let fileNameCV = '';
+    if (fileName) {
+      fileCV = `http://localhost:5000/${fileName}`;
+      fileNameCV = file_name;
+    } else {
+      fileCV = user[0].file_cv;
+      fileCV = user[0].file_name;
+    }
+    if (_.isEmpty(user)) {
+      const rows: any = await queryDb(
+        'insert into profile_cv(created_at,file_name,file_cv,id_company_field,career_goals, id_experience,desired_salary,id_type_current,id_type_desired,id_user,is_public,id_working_form) values(?,?,?,?,?,?,?,?,?,?,?,?)',
+        [
+          created_at,
+          file_name,
+          fileCV,
+          id_company_field,
+          career_goals,
+          id_experience,
+          desired_salary,
+          id_type_current,
+          id_type_desired,
+          id_user,
+          is_public,
+          id_working_form,
+        ]
+      );
+      if (rows.insertId >= 0) {
+        const profile_cv: any = await queryDb(
+          'select * from profile_cv where id_user=?',
+          [id_user]
+        );
+
+        return {
+          profile_cv: profile_cv[0],
+        };
+      } else {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Thêm profile cv không thành công'
+        );
+      }
+    } else {
+      const rows: any = await queryDb(
+        'UPDATE profile_cv set created_at=?,file_name=?,file_cv=?,id_company_field=?,career_goals=?, id_experience=?,desired_salary=?,id_type_current=?,id_type_desired=?,is_public=?,id_working_form=? where id_user=?',
+        [
+          created_at,
+          file_name,
+          fileCV,
+          id_company_field,
+          career_goals,
+          id_experience,
+          desired_salary,
+          id_type_current,
+          id_type_desired,
+          is_public,
+          id_working_form,
+          id_user,
+        ]
+      );
+      if (rows.insertId >= 0) {
+        const profile_cv: any = await queryDb(
+          'select * from profile_cv where id_user=?',
+          [id_user]
+        );
+
+        return {
+          profile_cv: profile_cv[0],
+        };
+      } else {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Thêm profile cv không thành công'
+        );
+      }
+    }
+  },
+
+  getProfileCV: async (id_user: string) => {
+    const profile_cv: any = await queryDb(
+      'select * from profile_cv where id_user=?',
+      [id_user]
+    );
+    if (_.isEmpty(profile_cv))
+      return {
+        profile_cv: {},
+      };
+
+    return {
+      profile_cv: profile_cv[0],
+    };
+  },
+
   followCompany: async (body: IPayloadFollow) => {
     const { id_user, id_company, created_at = new Date() } = body;
 
@@ -103,7 +228,6 @@ const userService = {
       id_user,
     ]);
 
-    console.log({ user });
     if (_.isEmpty(user))
       return {
         followers: [],
@@ -111,7 +235,7 @@ const userService = {
       };
 
     const rows: any = await queryDb(
-      'select name_company, company.id_company, follow.created_at from users, follow, company where users.id_user = follow.id_user and follow.id_company = company.id_company and users.id_user=?',
+      'select name_company,total_people,company.id_company, follow.created_at,logo from users, follow, company where users.id_user = follow.id_user and follow.id_company = company.id_company and users.id_user=?',
       [id_user]
     );
 

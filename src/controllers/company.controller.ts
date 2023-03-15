@@ -50,15 +50,15 @@ const companyController = {
 
   getCompanyById: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { company, total, jobs } = await companyService.getCompanyById(
-        req.params.id_company
-      );
+      const { company, total, jobs, followere } =
+        await companyService.getCompanyById(req.params.id_company);
 
       if (company) {
         res.status(httpStatus.CREATED).send({
           company,
           total,
           jobs,
+          followere,
         });
       }
     }
