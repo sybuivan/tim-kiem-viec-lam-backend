@@ -3,7 +3,11 @@ import { IUser } from '../types/auth';
 import queryDb from '../configs/db';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
-import { ICompany, TActiveStatues } from '../types/company';
+import {
+  ICompany,
+  IPayloadRegisterCompany,
+  TActiveStatues,
+} from '../types/company';
 import { IPayloadLogin } from '../types/common';
 import { findCompanyByid } from './common.service';
 
@@ -38,18 +42,20 @@ const companyService = {
     }
   },
 
-  register: async (body: ICompany) => {
+  register: async (body: IPayloadRegisterCompany) => {
     const {
       password,
-      id_role,
-      email,
       address,
-      introduce,
-      lat,
-      lng,
-      name_company,
-      total_people,
+      city,
+      email,
+      fullName,
+      nameCompany,
+      phone,
+      totalPeople,
+      faxCode,
+      fieldOfActivity,
     } = body;
+    const id_role = 'company';
     const id_company = uniqid();
 
     const user: any = await queryDb(
@@ -61,18 +67,20 @@ const companyService = {
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
     const rows: any = await queryDb(
-      'insert into company(id_company,password,id_role,email,address,introduce,lat,lng,name_company,total_people) values(?,?,?,?,?,?,?,?,?,?)',
+      'insert into company(id_role,password,address,city,email,fullName,name_company,phone,total_people,faxCode,idCompanyField,id_company) values(?,?,?,?,?,?,?,?,?,?,?,?)',
       [
-        id_company,
-        hashPassword,
         id_role,
-        email,
+        hashPassword,
         address,
-        introduce,
-        lat,
-        lng,
-        name_company,
-        total_people,
+        city,
+        email,
+        fullName,
+        nameCompany,
+        phone,
+        totalPeople,
+        faxCode,
+        fieldOfActivity,
+        id_company,
       ]
     );
     if (rows.insertId >= 0) {
@@ -85,40 +93,63 @@ const companyService = {
     }
   },
 
-  updateCompany: async (body: ICompany, id_company: string) => {
+  updateCompany: async (
+    body: ICompany,
+    id_company: string,
+    logo?: string,
+    cover_background?: string
+  ) => {
     const {
       email,
       address,
       introduce,
       lat,
       lng,
-      logo,
       total_people,
       name_company,
       cover_image,
       link_website,
+      idCompanyField,
+      city,
+      fullName,
+      phone,
+      faxCode,
     } = body;
+    let logoFile = '';
     const { company } = await findCompanyByid(id_company);
+    const coverImage = cover_background
+      ? `http://localhost:5000/${cover_background}`
+      : company[0].logo;
+    if (logo) {
+      logoFile = `http://localhost:5000/${logo}`;
+    } else {
+      logoFile = company[0].logo;
+    }
+
+    console.log({ coverImage });
 
     const rows: any = await queryDb(
-      'UPDATE company set email = ?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,cover_image=?,link_website=? where id_company = ?',
+      'UPDATE company set cover_image=?,email = ?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, fullName=?, phone=?, faxCode=? where id_company = ?',
       [
+        coverImage,
         email,
         address,
         introduce,
         lat,
         lng,
-        logo,
+        logoFile,
         total_people,
         name_company,
-        cover_image,
         link_website,
+        idCompanyField,
+        city,
+        fullName,
+        phone,
+        faxCode,
         id_company,
       ]
     );
     if (rows.insertId >= 0) {
-      const { company } = await findCompanyByid(id_company);
-
       const { password, ...orther } = company[0];
       return {
         company: orther,
@@ -153,7 +184,7 @@ const companyService = {
   },
 
   getCompanyList: async () => {
-    const active_status: TActiveStatues = 'Đã xét duyệt';
+    const active_status: TActiveStatues = 1;
     const companyList: any = await queryDb(
       'SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob from job, company WHERE job.id_company = company.id_company and company.active_status=? GROUP BY company.id_company',
       [active_status]

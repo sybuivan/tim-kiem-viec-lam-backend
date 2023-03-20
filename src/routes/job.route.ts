@@ -5,10 +5,11 @@ import { jobValidation } from '../validations/job.validation';
 const router = express.Router();
 
 router.post(
-  '/create-job',
+  '/create-job/:id_company',
   validate(jobValidation.createJob),
   jobController.createJob
 );
+
 router.put(
   '/update-job/:id_job',
   validate(jobValidation.updateJob),

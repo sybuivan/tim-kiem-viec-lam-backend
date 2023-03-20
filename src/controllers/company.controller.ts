@@ -6,6 +6,9 @@ import { IUser } from '../types/auth';
 import { IPayloadLogin } from '../types/common';
 import { ICompany } from '../types/company';
 import { catchAsync } from '../utils/catchAsync';
+interface MulterRequest extends Request {
+  files: any;
+}
 
 const companyController = {
   login: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -24,17 +27,41 @@ const companyController = {
       });
     }
   }),
+
   updateCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { company } = await companyService.updateCompany(
-        req.body,
-        req.params.id_company
-      );
+      const isFile = (req as MulterRequest)?.files;
+      if (!isFile) {
+        const { company } = await companyService.updateCompany(
+          req.body,
+          req.params.id_company
+        );
 
-      if (company) {
-        res.status(httpStatus.OK).send({
-          company,
-        });
+        if (company) {
+          res.status(httpStatus.OK).send({
+            company,
+          });
+        }
+      } else {
+        const cover_background =
+          (req as MulterRequest)?.files.cover_background &&
+          (req as MulterRequest)?.files.cover_background[0].filename;
+
+        const logo =
+          (req as MulterRequest)?.files.logo &&
+          (req as MulterRequest)?.files.logo[0].filename;
+        const { company } = await companyService.updateCompany(
+          req.body,
+          req.params.id_company,
+          logo,
+          cover_background
+        );
+
+        if (company) {
+          res.status(httpStatus.OK).send({
+            company,
+          });
+        }
       }
     }
   ),

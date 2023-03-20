@@ -12,7 +12,23 @@ export interface ICompany {
   cover_image: string;
   active_status: number;
   email: string;
-  password: string;
+  fullName: string;
+  phone: number;
+  city: string;
+  faxCode?: string;
+  password?: string;
+  idCompanyField?: string;
 }
-
-export type TActiveStatues = 'Đã xét duyệt' | 'Chưa xét duyệt' | 'Đã bị khóa';
+export interface IPayloadRegisterCompany {
+  email: string;
+  password: string;
+  fullName: string;
+  phone: number;
+  nameCompany: string;
+  faxCode?: string;
+  totalPeople: string;
+  city: string;
+  address: string;
+  fieldOfActivity?: string;
+}
+export type TActiveStatues = 0 | 1;

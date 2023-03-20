@@ -10,44 +10,44 @@ import ApiError from '../utils/ApiError';
 const LIMIT = 20;
 
 const jobService = {
-  createJob: async (body: IJob) => {
+  createJob: async (body: IJob, id_company: string) => {
     const id_job = uniqid();
     const {
       created_at = new Date(),
-      deadline = new Date(),
+      deadline,
       description_job,
       city,
-      id_company,
       id_experience,
       id_field,
       id_range,
-      id_rank,
       id_type,
       name_job,
       required_job,
-      total_number,
+      size_number,
+      benefits_job,
       work_location,
-      urgent_recruitment,
+      id_working_form,
     } = body;
+
     const rows: any = await queryDb(
-      'insert into job(city,created_at,deadline,description_job,id_company,id_experience,id_field,id_range,id_rank,id_type,name_job,required_job,total_number,work_location,id_job,urgent_recruitment) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'insert into job(id_working_form,benefits_job,city,created_at,deadline,description_job,id_experience,id_field,id_range,id_type,name_job,required_job,size_number,work_location,id_job,id_company) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [
+        id_working_form,
+        benefits_job,
         city,
         created_at,
         deadline,
         description_job,
-        id_company,
         id_experience,
         id_field,
         id_range,
-        id_rank,
         id_type,
         name_job,
         required_job,
-        total_number,
+        size_number,
         work_location,
         id_job,
-        urgent_recruitment,
+        id_company,
       ]
     );
     if (rows.insertId >= 0) {
@@ -70,7 +70,7 @@ const jobService = {
     const {
       deadline,
       description_job,
-      // id_city,
+      benefits_job,
       id_company,
       id_experience,
       id_field,
@@ -79,7 +79,7 @@ const jobService = {
       id_type,
       name_job,
       required_job,
-      total_number,
+      size_number,
       work_location,
       urgent_recruitment,
     } = body;
@@ -107,7 +107,7 @@ const jobService = {
         id_type,
         name_job,
         required_job,
-        total_number,
+        size_number,
         work_location,
         urgent_recruitment,
         id_job,
@@ -163,7 +163,7 @@ const jobService = {
 
   getJobById: async (id_job: string) => {
     const job: any = await queryDb(
-      'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_rank and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company = job.id_company and experience.id_experience = job.id_experience',
+      'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_type and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company = job.id_company and experience.id_experience = job.id_experience',
       [id_job]
     );
     if (_.isEmpty(job))
@@ -197,7 +197,7 @@ const jobService = {
   getListJob: async () => {
     // job có bật req hoặc deadline > 15 day và deadline > ngày hiện tại
     const rows: any = await queryDb(
-      'select name_job, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage where job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() + INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
+      'select name_job, name_company, job.id_job, name_city, name_range, work_location, logo from city, job, company, rangewage where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() + INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
       []
     );
 

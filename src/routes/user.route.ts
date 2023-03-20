@@ -19,11 +19,7 @@ router.post(
   uploadFile.single('file_cv'),
   userController.createCV
 );
-router.get(
-  '/get-profile-cv/:id_user',
-  // validate(userValidation.createProfileCV),
-  userController.getProfileCV
-);
+router.get('/get-profile-cv/:id_user', userController.getProfileCV);
 router.post(
   '/add-follow',
   validate(userValidation.followCompany),

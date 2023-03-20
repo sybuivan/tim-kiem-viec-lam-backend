@@ -9,10 +9,12 @@ export interface IJob {
   id_experience: string;
   name_job: string;
   deadline: Date | string;
-  total_number: number;
+  size_number: number;
   description_job: string;
   required_job: string;
   created_at: Date | string;
   work_location: string;
   urgent_recruitment: number;
+  benefits_job: string;
+  id_working_form: string;
 }

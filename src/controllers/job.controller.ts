@@ -21,7 +21,10 @@ interface IQueryJob {
 const jobController = {
   createJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { job } = await jobService.createJob(req.body);
+      const { job } = await jobService.createJob(
+        req.body,
+        req.params.id_company
+      );
       if (job) {
         res.status(httpStatus.CREATED).send({
           job,
