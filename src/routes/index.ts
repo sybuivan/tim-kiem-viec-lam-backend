@@ -4,6 +4,7 @@ import jobRoute from './job.route';
 import useRoute from './user.route';
 import applyRoute from './apply.route';
 import commonRoute from './common.route';
+import chatRoute from './chat.route';
 
 import express from 'express';
 
@@ -33,6 +34,10 @@ const defaultRoutes = [
   {
     path: '/common',
     route: commonRoute,
+  },
+  {
+    path: '/chat',
+    route: chatRoute,
   },
 ];
 

@@ -6,3 +6,5 @@ export interface IPayloadLogin {
 export interface MulterRequest extends Request {
   file: any;
 }
+
+export type TROLE = 'admin' | 'user' | 'company';

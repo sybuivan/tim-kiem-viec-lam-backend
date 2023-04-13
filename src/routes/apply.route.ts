@@ -8,7 +8,6 @@ const router = express.Router();
 
 router.post(
   '/apply-job',
-  //   validate(applyValidation.applyJob),
   uploadFile.single('cv_file'),
 
   applyController.createApply

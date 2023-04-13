@@ -1,5 +1,5 @@
 const uniqid = require('uniqid');
-import { IUser } from '../types/auth';
+import { IUser, TRole } from '../types/auth';
 import queryDb from '../configs/db';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
@@ -8,8 +8,9 @@ import {
   IPayloadRegisterCompany,
   TActiveStatues,
 } from '../types/company';
-import { IPayloadLogin } from '../types/common';
+import { IPayloadLogin, TROLE } from '../types/common';
 import { findCompanyByid } from './common.service';
+import { IPayloadFollow } from '../types/users';
 
 var _ = require('lodash');
 var bcrypt = require('bcrypt');
@@ -49,9 +50,9 @@ const companyService = {
       city,
       email,
       fullName,
-      nameCompany,
+      name_company,
       phone,
-      totalPeople,
+      total_people,
       faxCode,
       fieldOfActivity,
     } = body;
@@ -75,9 +76,9 @@ const companyService = {
         city,
         email,
         fullName,
-        nameCompany,
+        name_company,
         phone,
-        totalPeople,
+        total_people,
         faxCode,
         fieldOfActivity,
         id_company,
@@ -126,8 +127,6 @@ const companyService = {
       logoFile = company[0].logo;
     }
 
-    console.log({ coverImage });
-
     const rows: any = await queryDb(
       'UPDATE company set cover_image=?,email = ?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, fullName=?, phone=?, faxCode=? where id_company = ?',
       [
@@ -164,14 +163,15 @@ const companyService = {
 
   getCompanyById: async (id_company: string) => {
     const { company } = await findCompanyByid(id_company);
+    const type_role: TRole = 'USER';
 
     const followere: any = await queryDb(
-      'select id_user from follow where id_company=?',
-      [id_company]
+      'select id_user from follow where id_company=? and type_role=?',
+      [id_company, type_role]
     );
 
     const jobs: any = await queryDb(
-      'select id_job,name_range,name_job,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=?',
+      'select id_job,name_range,name_job,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=? and deadline > CURDATE()',
       [id_company]
     );
 
@@ -186,13 +186,156 @@ const companyService = {
   getCompanyList: async () => {
     const active_status: TActiveStatues = 1;
     const companyList: any = await queryDb(
-      'SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob from job, company WHERE job.id_company = company.id_company and company.active_status=? GROUP BY company.id_company',
+      'SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob from job, company WHERE job.id_company = company.id_company and company.active_status=? and deadline > CURDATE() GROUP BY company.id_company',
       [active_status]
     );
 
     return {
       companyList,
       total: companyList.length,
+    };
+  },
+
+  findCandidate: async (queryParams: {
+    keyword: string;
+    id_company_field: string;
+    city: string;
+  }) => {
+    const { city = '', id_company_field = '', keyword = '' } = queryParams;
+    const sqlCompanyfield =
+      id_company_field &&
+      `and profile_cv.id_company_field ='${id_company_field}' `;
+    const sqlCity = city && `and profile_cv.id_city  = '${city}' `;
+    const sqlKeyword = keyword && `and users.fullName = '${keyword}' `;
+
+    const rows: any = await queryDb(
+      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlCompanyfield}${sqlCity}${sqlKeyword}`,
+      []
+    );
+
+    return {
+      data: rows,
+      total: rows.length,
+    };
+  },
+
+  followUser: async (body: IPayloadFollow) => {
+    const { company } = await findCompanyByid(body.id_company);
+
+    const { id_user, id_company, created_at = new Date() } = body;
+    const type_role: TROLE = 'company';
+    const user: any = await queryDb(
+      'select * from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
+    );
+    if (!_.isEmpty(user))
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Đã follow.');
+
+    const rows: any = await queryDb(
+      'insert into follow(id_user, id_company, created_at, type_role) values(?,?,?,?)',
+      [id_user, id_company, created_at, type_role]
+    );
+    if (rows.insertId >= 0) {
+      const rows: any = await queryDb(
+        'select fullName,phone,users.id_user,email,name_field,file_name,file_cv,avatar from users,companyfield, profile_cv,follow where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 and id_company=?',
+        [id_company]
+      );
+
+      return {
+        followers: rows,
+        total: rows.length,
+      };
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Follow không thành công');
+    }
+  },
+
+  unFollowUser: async (body: IPayloadFollow) => {
+    const { id_user, id_company } = body;
+    const type_role: TROLE = 'company';
+
+    const user: any = await queryDb(
+      'select * from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
+    );
+    if (_.isEmpty(user))
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Chưa follow.');
+
+    const rows: any = await queryDb(
+      'Delete from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
+    );
+
+    if (rows.insertId >= 0) {
+      return id_user;
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Bỏ follow không thành công');
+    }
+  },
+
+  getAllFollowUser: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+    const type_role: TROLE = 'company';
+
+    const user: any = await queryDb(
+      'select * from follow where id_company=? and type_role=?',
+      [id_company, type_role]
+    );
+
+    if (_.isEmpty(user))
+      return {
+        followers: [],
+        total: 0,
+      };
+
+    const rows: any = await queryDb(
+      'select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv, follow where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 and id_company=? and type_role=?',
+      [id_company, type_role]
+    );
+
+    if (rows.length > 0) {
+      return {
+        followers: rows,
+        total: rows.length,
+      };
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Lấy thông tin không thành công'
+      );
+    }
+  },
+
+  getAllJobByCompany: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+
+    const rows: any = await queryDb(
+      'select name_job, id_job, deadline from job where id_company=?',
+      [id_company]
+    );
+
+    return {
+      jobs: rows,
+    };
+  },
+  getProfileAppliedByJob: async ({
+    id_company,
+    id_job,
+  }: {
+    id_company: string;
+    id_job: string;
+  }) => {
+    const { company } = await findCompanyByid(id_company);
+    const sqlId_job = id_job && `and apply.id_job ='${id_job}'`;
+
+    const rows: any = await queryDb(
+      `select name_job, job.id_job,id_apply,deadline,file_cv, apply.created_at, users.fullName, birthDay, name_rank from typerank, users,job, apply, company where  job.id_type = typerank.id_rank and  users.id_user = apply.id_user and job.id_company and company.id_company and apply.id_job = job.id_job and job.id_company=? ${sqlId_job}`,
+      [id_company]
+    );
+
+    return {
+      applied: rows,
+      total: rows.length,
     };
   },
 };

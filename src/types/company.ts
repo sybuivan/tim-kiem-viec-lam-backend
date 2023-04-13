@@ -24,9 +24,9 @@ export interface IPayloadRegisterCompany {
   password: string;
   fullName: string;
   phone: number;
-  nameCompany: string;
+  name_company: string;
   faxCode?: string;
-  totalPeople: string;
+  total_people: string;
   city: string;
   address: string;
   fieldOfActivity?: string;

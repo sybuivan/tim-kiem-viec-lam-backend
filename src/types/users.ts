@@ -17,6 +17,7 @@ export interface IPayLoadCV {
   career_goals: string;
   desired_salary: number;
   id_experience: string;
+  id_city: string;
   is_public: number;
   id_working_form: string;
   id_company_field: string;

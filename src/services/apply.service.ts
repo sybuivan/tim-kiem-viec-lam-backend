@@ -19,7 +19,6 @@ const applyService = {
       introducing_letter,
       status = 0,
     } = body;
-    console.log({ body });
     const id_apply = uniqid();
     await findUserByid(id_user);
     await findJobById(id_job);

@@ -64,16 +64,26 @@ const jobController = {
       }
     }
   ),
+  getJobByIdCompany: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { job } = await jobService.getJobByIdCompany(req.params.id_job);
+      if (job) {
+        res.status(httpStatus.OK).send({
+          job,
+        });
+      }
+    }
+  ),
 
   getJobListByCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { jobs, totalPost } = await jobService.getJobListByCompany(
+      const { data, total } = await jobService.getJobListByCompany(
         req.params.id_company
       );
-      if (jobs) {
+      if (data) {
         res.status(httpStatus.OK).send({
-          jobs,
-          totalPost,
+          data,
+          total,
         });
       }
     }

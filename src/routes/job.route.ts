@@ -22,6 +22,7 @@ router.delete(
   jobController.deleteJob
 );
 router.get('/get-job-by-id/:id_job', jobController.getJobById);
+router.get('/get-job-by-id-company/:id_job', jobController.getJobByIdCompany);
 router.get(
   '/get-jobs-by-company/:id_company',
   jobController.getJobListByCompany

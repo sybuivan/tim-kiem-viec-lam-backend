@@ -6,6 +6,7 @@ import queryDb from '../configs/db';
 import { IUser } from '../types/auth';
 import { IJob } from '../types/job';
 import ApiError from '../utils/ApiError';
+import { findCompanyByid } from './common.service';
 
 const LIMIT = 20;
 
@@ -70,18 +71,17 @@ const jobService = {
     const {
       deadline,
       description_job,
-      benefits_job,
-      id_company,
+      city,
       id_experience,
       id_field,
       id_range,
-      id_rank,
       id_type,
       name_job,
       required_job,
       size_number,
+      benefits_job,
       work_location,
-      urgent_recruitment,
+      id_working_form,
     } = body;
     const job: any = await queryDb('select * from job where id_job=?', [
       id_job,
@@ -94,22 +94,19 @@ const jobService = {
       );
 
     const rows: any = await queryDb(
-      'UPDATE job set deadline = ?, description_job= ?, id_company= ?, id_experience= ?, id_field= ?, id_range= ?, id_rank= ?, id_type=?,name_job=?,required_job=?, total_number=?,work_location=?, urgent_recruitment=? where id_job = ?',
+      'UPDATE job set deadline = ?, description_job= ?, city=?, id_experience= ?, id_field= ?, id_range= ?, id_type=?,name_job=?,required_job=?, size_number=?,work_location=? where id_job = ?',
       [
         deadline,
         description_job,
-        // id_city,
-        id_company,
+        city,
         id_experience,
         id_field,
         id_range,
-        id_rank,
         id_type,
         name_job,
         required_job,
         size_number,
         work_location,
-        urgent_recruitment,
         id_job,
       ]
     );
@@ -177,20 +174,31 @@ const jobService = {
       job: orther,
     };
   },
-
-  getJobListByCompany: async (id_company: string) => {
-    const jobs = await queryDb(
-      'select name_job, name_range, deadline, work_location from job, rangewage where id_company=? and rangewage.id_range = job.id_range',
-      [id_company]
-    );
-    if (_.isEmpty(jobs))
+  getJobByIdCompany: async (id_job: string) => {
+    const job: any = await queryDb('select * from job where id_job=?', [
+      id_job,
+    ]);
+    if (_.isEmpty(job))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        'Không tìm thấy bài tuyển dụng công ty'
+        'Không tìm thấy bài tuyển dụng'
       );
+
     return {
-      jobs: jobs,
-      totalPost: jobs.length,
+      job: job[0],
+    };
+  },
+
+  getJobListByCompany: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+    const jobs = await queryDb(
+      'select name_job,id_job, name_range, deadline, work_location from job, rangewage where id_company=? and rangewage.id_range = job.id_range',
+      [id_company]
+    );
+
+    return {
+      data: jobs,
+      total: jobs.length,
     };
   },
 
@@ -217,7 +225,7 @@ const jobService = {
     page: number;
   }) => {
     const {
-      city,
+      city = '',
       companyfield,
       keyword = '',
       id_range = '',
@@ -225,6 +233,17 @@ const jobService = {
       id_rank = '',
       page = 1,
     } = queryParams;
+
+    if (_.isEmpty(queryParams)) {
+      const rows: any = await queryDb(
+        'select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE()',
+        []
+      );
+      return {
+        data: rows,
+        total: rows.length,
+      };
+    }
     const sqlCompanyfield =
       companyfield && `and job.id_field='${companyfield}'`;
     const sqlCity = city && `and job.city = '${city}'`;
@@ -235,9 +254,7 @@ const jobService = {
     const sql_id_rank = id_rank && `and job.id_rank = '${id_rank}'`;
     const sql_limit =
       page == 1 ? `LIMIT 0,${LIMIT}` : `LIMIT ${(page - 1) * LIMIT},${LIMIT}`;
-    console.log({
-      sql: `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
-    });
+
     const rows: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
       []

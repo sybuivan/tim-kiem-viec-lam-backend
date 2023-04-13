@@ -14,8 +14,8 @@ const companyValidation = {
       password: Joi.string().required().min(6),
       fullName: Joi.string().required(),
       phone: Joi.number().required(),
-      nameCompany: Joi.string().required(),
-      totalPeople: Joi.string().required(),
+      name_company: Joi.string().required(),
+      total_people: Joi.string().required(),
       city: Joi.string().required(),
       address: Joi.string().required(),
       faxCode: Joi.string().optional(),
@@ -35,6 +35,12 @@ const companyValidation = {
       cover_image: Joi.string().required(),
       lat: Joi.number().required(),
       lng: Joi.number().required(),
+    }),
+  },
+  followUser: {
+    body: Joi.object().keys({
+      id_user: Joi.string().required(),
+      id_company: Joi.string().required(),
     }),
   },
 };

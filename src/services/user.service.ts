@@ -6,6 +6,7 @@ import httpStatus from 'http-status';
 import { IPayLoadCV, IPayloadFollow, IPayloadSaveJob } from '../types/users';
 import { findJobById, findUserByid } from './common.service';
 import { NextFunction } from 'express';
+import { TROLE } from '../types/common';
 
 var _ = require('lodash');
 
@@ -24,6 +25,8 @@ const userService = {
     } = body;
 
     let avatarFile = '';
+
+    console.log(birthDay);
 
     const user: any = await queryDb('select * from users where id_user=?', [
       id_user,
@@ -72,6 +75,7 @@ const userService = {
       id_working_form,
       id_company_field,
       file_name,
+      id_city,
       created_at = new Date(),
     } = body;
 
@@ -92,8 +96,9 @@ const userService = {
     }
     if (_.isEmpty(user)) {
       const rows: any = await queryDb(
-        'insert into profile_cv(created_at,file_name,file_cv,id_company_field,career_goals, id_experience,desired_salary,id_type_current,id_type_desired,id_user,is_public,id_working_form) values(?,?,?,?,?,?,?,?,?,?,?,?)',
+        'insert into profile_cv(id_city,created_at,file_name,file_cv,id_company_field,career_goals, id_experience,desired_salary,id_type_current,id_type_desired,id_user,is_public,id_working_form) values(?,?,?,?,?,?,?,?,?,?,?,?,?)',
         [
+          id_city,
           created_at,
           file_name,
           fileCV,
@@ -125,8 +130,9 @@ const userService = {
       }
     } else {
       const rows: any = await queryDb(
-        'UPDATE profile_cv set created_at=?,file_name=?,file_cv=?,id_company_field=?,career_goals=?, id_experience=?,desired_salary=?,id_type_current=?,id_type_desired=?,is_public=?,id_working_form=? where id_user=?',
+        'UPDATE profile_cv set id_city=?, created_at=?,file_name=?,file_cv=?,id_company_field=?,career_goals=?, id_experience=?,desired_salary=?,id_type_current=?,id_type_desired=?,is_public=?,id_working_form=? where id_user=?',
         [
+          id_city,
           created_at,
           file_name,
           fileCV,
@@ -176,22 +182,22 @@ const userService = {
 
   followCompany: async (body: IPayloadFollow) => {
     const { id_user, id_company, created_at = new Date() } = body;
-
+    const type_role: TROLE = 'user';
     const user: any = await queryDb(
-      'select * from follow where id_user=? and id_company=?',
-      [id_user, id_company]
+      'select * from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
     );
     if (!_.isEmpty(user))
       throw new ApiError(httpStatus.BAD_REQUEST, 'Đã follow.');
 
     const rows: any = await queryDb(
-      'insert into follow(id_user, id_company, created_at) values(?,?,?)',
-      [id_user, id_company, created_at]
+      'insert into follow(id_user, id_company, created_at, type_role) values(?,?,?, ?)',
+      [id_user, id_company, created_at, type_role]
     );
     if (rows.insertId >= 0) {
       const follow: any = await queryDb(
-        'select * from follow where id_user=?',
-        [id_user]
+        'select * from follow where id_company=? and type_role=?',
+        [id_company, type_role]
       );
 
       return {
@@ -204,20 +210,23 @@ const userService = {
 
   unFollowCompany: async (body: IPayloadFollow) => {
     const { id_user, id_company } = body;
+    const type_role: TROLE = 'user';
+
     const user: any = await queryDb(
-      'select * from follow where id_user=? and id_company=?',
-      [id_user, id_company]
+      'select * from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
     );
     if (_.isEmpty(user))
       throw new ApiError(httpStatus.BAD_REQUEST, 'Chưa follow.');
 
     const rows: any = await queryDb(
-      'Delete from follow where id_user=? and id_company=?',
-      [id_user, id_company]
+      'Delete from follow where id_user=? and id_company=? and type_role=?',
+      [id_user, id_company, type_role]
     );
 
     if (rows.insertId >= 0) {
-      return;
+      const { followers, total } = await userService.getAllFollowUser(id_user);
+      return { followers, total };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bỏ follow không thành công');
     }
@@ -228,6 +237,8 @@ const userService = {
       id_user,
     ]);
 
+    const type_role = 'user';
+
     if (_.isEmpty(user))
       return {
         followers: [],
@@ -235,9 +246,15 @@ const userService = {
       };
 
     const rows: any = await queryDb(
-      'select name_company,total_people,company.id_company, follow.created_at,logo from users, follow, company where users.id_user = follow.id_user and follow.id_company = company.id_company and users.id_user=?',
-      [id_user]
+      'select name_company,total_people,company.id_company, follow.created_at,logo from users, follow, company where users.id_user = follow.id_user and follow.id_company = company.id_company and users.id_user=? and follow.type_role=?',
+      [id_user, type_role]
     );
+
+    if (rows.length === 0)
+      return {
+        followers: [],
+        total: 0,
+      };
 
     if (rows.length > 0) {
       return {
@@ -318,7 +335,7 @@ const userService = {
       [id_user]
     );
 
-    if (rows.length > 0) {
+    if (rows) {
       return {
         savedList: rows,
         total: rows.length,

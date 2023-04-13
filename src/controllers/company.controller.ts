@@ -10,6 +10,17 @@ interface MulterRequest extends Request {
   files: any;
 }
 
+interface IQueryCandidate {
+  city: string;
+  id_company_field: string;
+  keyword: string;
+}
+
+interface IQueryApplied {
+  id_company: string;
+  id_job: string;
+}
+
 const companyController = {
   login: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: IPayloadLogin = req.body;
@@ -81,7 +92,7 @@ const companyController = {
         await companyService.getCompanyById(req.params.id_company);
 
       if (company) {
-        res.status(httpStatus.CREATED).send({
+        res.status(httpStatus.OK).send({
           company,
           total,
           jobs,
@@ -95,8 +106,80 @@ const companyController = {
       const { companyList, total } = await companyService.getCompanyList();
 
       if (companyList) {
-        res.status(httpStatus.CREATED).send({
+        res.status(httpStatus.OK).send({
           companyList,
+          total,
+        });
+      }
+    }
+  ),
+
+  findCandidate: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { data, total } = await companyService.findCandidate(
+        req.query as unknown as IQueryCandidate
+      );
+
+      if (data) {
+        res.status(httpStatus.OK).send({
+          data,
+          total,
+        });
+      }
+    }
+  ),
+
+  followUser: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { followers, total } = await companyService.followUser(req.body);
+      if (followers) {
+        res.status(httpStatus.CREATED).send({
+          followers,
+          total,
+        });
+      }
+    }
+  ),
+
+  unFollowUser: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id_user = await companyService.unFollowUser(req.body);
+      res.status(httpStatus.OK).send(id_user);
+    }
+  ),
+  getAllFollowUser: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { followers, total } = await companyService.getAllFollowUser(
+        req.params.id_company
+      );
+      if (followers) {
+        res.status(httpStatus.OK).send({
+          followers,
+          total,
+        });
+      }
+    }
+  ),
+  getAllJobByCompany: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { jobs } = await companyService.getAllJobByCompany(
+        req.params.id_company
+      );
+      if (jobs) {
+        res.status(httpStatus.OK).send({
+          jobs,
+        });
+      }
+    }
+  ),
+  getProfileAppliedByJob: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { applied, total } = await companyService.getProfileAppliedByJob(
+        req.query as unknown as IQueryApplied
+      );
+      if (applied) {
+        res.status(httpStatus.OK).send({
+          applied,
           total,
         });
       }

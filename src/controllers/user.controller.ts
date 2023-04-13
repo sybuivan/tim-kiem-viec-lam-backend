@@ -74,8 +74,8 @@ const userController = {
 
   unFollowCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      await userService.unFollowCompany(req.body);
-      res.status(httpStatus.OK).send('Hủy follow thành công');
+      const { followers, total } = await userService.unFollowCompany(req.body);
+      res.status(httpStatus.OK).send({ followers, total });
     }
   ),
 
