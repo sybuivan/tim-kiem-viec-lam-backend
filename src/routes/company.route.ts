@@ -54,5 +54,6 @@ router.get(
   companyController.getAllJobByCompany
 );
 router.get('/get-applied-by-company', companyController.getProfileAppliedByJob);
+router.post('/update-status-applied', companyController.updateStatusApplied);
 
 export default router;

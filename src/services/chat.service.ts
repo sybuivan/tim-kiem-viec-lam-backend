@@ -41,17 +41,28 @@ const chatService = {
 
   getRoom: async (id_user: string, id_role: 'user' | 'company') => {
     const rooms: any = await queryDb(
-      `select room.id_room,fullName,room.id_user, room.id_company,chat.created_at, chat.message from room,chat, ${
-        id_role === 'company'
-          ? 'users where users.id_user = room.id_user and'
-          : 'company where company.id_company = room.id_company and'
-      } ${
-        id_role === 'user' ? 'room.id_user=?' : 'chat.id_company=?'
-      } and chat.id_room = room.id_room ORDER BY chat.created_at DESC LIMIT 1`,
+      `SELECT r.id_room, r.id_user, r.id_company, c.message, created_at,fullName,${
+        id_role === 'company' ? 'avatar' : 'logo'
+      }
+    FROM room r 
+    INNER JOIN ( 
+        SELECT id_room, message, created_at 
+        FROM chat 
+        WHERE (id_room, created_at) IN (
+            SELECT id_room, MAX(created_at) 
+            FROM chat 
+            GROUP BY id_room
+        )
+    ) c ON r.id_room = c.id_room ,
+    ${
+      id_role === 'company'
+        ? 'users u where u.id_user = r.id_user and  r.id_company = ?'
+        : 'company where company.id_company = r.id_company and  r.id_user = ?'
+    }`,
       [id_user]
     );
 
-    console.log(rooms);
+    // console.log({ rooms, id_user });
 
     if (rooms) {
       return {
@@ -104,6 +115,48 @@ const chatService = {
       messages: messages,
       room: room[0],
     };
+  },
+
+  createNewMessage: async (body: IMessage) => {
+    const { id_user, id_company, message, sender } = body;
+    await findUserByid(id_user);
+    const { company } = await findCompanyByid(id_company);
+
+    const group: any = await queryDb(
+      'select * from room where id_company=? and id_user=?',
+      [id_company, id_user]
+    );
+    if (!_.isEmpty(group)) {
+      console.log('da co groupt');
+      const { message } = await chatService.createMessage({
+        ...body,
+        id_room: group[0].id_room,
+      });
+
+      console.log({ message });
+      return {
+        message,
+      };
+    } else {
+      const id_room = uniqid();
+
+      const rows: any = await queryDb(
+        'insert into room(id_user,id_company,id_room) values(?,?,?)',
+        [id_user, id_company, id_room]
+      );
+
+      if (rows.insertId >= 0) {
+        const { message } = await chatService.createMessage({
+          ...body,
+          id_room,
+        });
+        return {
+          message,
+        };
+      } else {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Tạo nhóm không thành công');
+      }
+    }
   },
 };
 

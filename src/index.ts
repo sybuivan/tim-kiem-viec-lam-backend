@@ -9,6 +9,8 @@ const puppeteer = require('puppeteer');
 
 dotenv.config();
 
+export const sockets: any = {};
+
 const app: Express = express();
 
 // config path images
@@ -53,8 +55,17 @@ io.on('connection', (socket: any) => {
   console.log('connection io');
   console.log(`⚡: ${socket.id} user just connected!`);
 
+  socket.on('user_id', (user_id: string) => {
+    sockets[user_id] = socket;
+  });
+
   socket.on('disconnect', () => {
     console.log('🔥: A user disconnected');
+    for (const [key, value] of Object.entries(sockets)) {
+      if (value === socket) {
+        delete sockets[key];
+      }
+    }
   });
 });
 

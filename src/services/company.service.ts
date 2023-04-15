@@ -199,13 +199,13 @@ const companyService = {
   findCandidate: async (queryParams: {
     keyword: string;
     id_company_field: string;
-    city: string;
+    id_city: string;
   }) => {
-    const { city = '', id_company_field = '', keyword = '' } = queryParams;
+    const { id_city = '', id_company_field = '', keyword = '' } = queryParams;
     const sqlCompanyfield =
       id_company_field &&
       `and profile_cv.id_company_field ='${id_company_field}' `;
-    const sqlCity = city && `and profile_cv.id_city  = '${city}' `;
+    const sqlCity = id_city && `and profile_cv.id_city  = '${id_city}' `;
     const sqlKeyword = keyword && `and users.fullName = '${keyword}' `;
 
     const rows: any = await queryDb(
@@ -329,13 +329,39 @@ const companyService = {
     const sqlId_job = id_job && `and apply.id_job ='${id_job}'`;
 
     const rows: any = await queryDb(
-      `select name_job, job.id_job,id_apply,deadline,file_cv, apply.created_at, users.fullName, birthDay, name_rank from typerank, users,job, apply, company where  job.id_type = typerank.id_rank and  users.id_user = apply.id_user and job.id_company and company.id_company and apply.id_job = job.id_job and job.id_company=? ${sqlId_job}`,
+      `select name_job,avatar, job.id_job,id_apply,deadline,file_cv,users.id_user, apply.created_at, users.fullName, birthDay, name_rank, status from typerank, users,job, apply, company where  job.id_type = typerank.id_rank and  users.id_user = apply.id_user and job.id_company and company.id_company and apply.id_job = job.id_job and job.id_company=? ${sqlId_job}`,
       [id_company]
     );
 
     return {
       applied: rows,
       total: rows.length,
+    };
+  },
+
+  updateStatusApplied: async (
+    listApply: { id_apply: string; status: number; id_user: string }[]
+  ) => {
+    for (let i = 0; i < listApply.length; i++) {
+      const rows: any = await queryDb('select * from apply where id_apply=?', [
+        listApply[i].id_apply,
+      ]);
+
+      if (rows.length > 0) {
+        const result: any = await queryDb(
+          `update apply set status=? where id_apply=?`,
+          [listApply[i].status, listApply[i].id_apply]
+        );
+      } else
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Không tìm thấy bài ứng tuyển'
+        );
+    }
+
+    const users = listApply.map((item) => item.id_user);
+    return {
+      users,
     };
   },
 };

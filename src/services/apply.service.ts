@@ -50,7 +50,7 @@ const applyService = {
     }
 
     const rows: any = await queryDb(
-      'insert into apply(cv_file,id_user,status,id_job, id_apply, created_at, introducing_letter) values(?,?,?,?,?,?,?)',
+      'insert into apply(file_cv,id_user,status,id_job, id_apply, created_at, introducing_letter) values(?,?,?,?,?,?,?)',
       [
         cv_file,
         id_user,
@@ -77,7 +77,7 @@ const applyService = {
   getApplyJobByUser: async (id_user: string) => {
     await findUserByid(id_user);
     const rows: any = await queryDb(
-      'select id_user, id_apply, job.id_job, introducing_letter, apply.created_at, name_company, name_job, cv_file, deadline, company.id_company, status from apply,job, company where company.id_company = job.id_company and id_user=? and job.id_job=apply.id_job',
+      'select id_user, id_apply, job.id_job, introducing_letter, apply.created_at, name_company, name_job, file_cv, deadline, company.id_company, status from apply,job, company where company.id_company = job.id_company and id_user=? and job.id_job=apply.id_job',
       [id_user]
     );
 

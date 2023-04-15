@@ -8,5 +8,4 @@ async function queryDb(sql: any, params?: any) {
 
   return results;
 }
-
 export default queryDb;

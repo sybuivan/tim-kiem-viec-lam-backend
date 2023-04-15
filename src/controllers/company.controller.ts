@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
+import { io, sockets } from '..';
 import { tokenService } from '../services';
 import companyService from '../services/company.service';
+import notificationService from '../services/notification.service';
 import { IUser } from '../types/auth';
 import { IPayloadLogin } from '../types/common';
 import { ICompany } from '../types/company';
@@ -11,7 +13,7 @@ interface MulterRequest extends Request {
 }
 
 interface IQueryCandidate {
-  city: string;
+  id_city: string;
   id_company_field: string;
   keyword: string;
 }
@@ -181,6 +183,27 @@ const companyController = {
         res.status(httpStatus.OK).send({
           applied,
           total,
+        });
+      }
+    }
+  ),
+  updateStatusApplied: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { users } = await companyService.updateStatusApplied(req.body);
+      const { results } = await notificationService.applyNotification(req.body);
+      console.log({ results });
+      for (const notifi of results) {
+        if (sockets[notifi.id_user]) {
+          sockets[notifi.id_user].emit('notification', {
+            message: 'Bạn có 1 thông báo mới',
+            notifi,
+          });
+        }
+      }
+
+      if (users) {
+        res.status(httpStatus.OK).send({
+          users,
         });
       }
     }

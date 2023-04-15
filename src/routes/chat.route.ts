@@ -16,6 +16,11 @@ router.post(
   validate(chatValidation.createChat),
   chatController.createMessage
 );
+router.post(
+  '/chat-new-message',
+  validate(chatValidation.createNewChat),
+  chatController.createNewMessage
+);
 
 router.get('/get-room/:id_user/:id_role', chatController.getRoom);
 router.get('/get-messages/:id_room', chatController.getMessages);

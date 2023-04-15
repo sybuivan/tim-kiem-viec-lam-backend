@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
+import notificationService from '../services/notification.service';
 import userService from '../services/user.service';
 import { catchAsync } from '../utils/catchAsync';
 interface MulterRequest extends Request {
@@ -124,6 +125,24 @@ const userController = {
       await userService.unSaveJob(req.body);
 
       res.status(httpStatus.OK).send('Hủy save job thành công');
+    }
+  ),
+
+  getNotification: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { notificationList, total } =
+        await notificationService.getNotification(req.params.id_user);
+
+      res.status(httpStatus.OK).send({ notificationList, total });
+    }
+  ),
+  updateNotification: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id_notification = await notificationService.updateNotification(
+        req.params.id_notificatiton
+      );
+
+      res.status(httpStatus.OK).send(id_notification);
     }
   ),
 };

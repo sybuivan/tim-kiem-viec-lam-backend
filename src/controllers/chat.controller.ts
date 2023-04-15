@@ -37,6 +37,14 @@ const chatController = {
       });
     }
   ),
+  createNewMessage: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { message } = await chatService.createNewMessage(req.body);
+      return res.status(httpStatus.OK).send({
+        message,
+      });
+    }
+  ),
   getMessages: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { messages, room } = await chatService.getMessages(

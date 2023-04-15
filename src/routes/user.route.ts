@@ -33,6 +33,11 @@ router.delete(
 router.get('/get-all-follow-user/:id_user', userController.getAllFollowUser);
 
 router.get('/get-all-saved-user/:id_user', userController.getAllSaveJob);
+router.get('/get-notification/:id_user', userController.getNotification);
+router.put(
+  '/update-notification/:id_notificatiton',
+  userController.updateNotification
+);
 router.post(
   '/save-job',
   validate(userValidation.saveJob),
