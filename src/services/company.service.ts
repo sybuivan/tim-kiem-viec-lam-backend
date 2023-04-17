@@ -281,7 +281,6 @@ const companyService = {
       'select * from follow where id_company=? and type_role=?',
       [id_company, type_role]
     );
-
     if (_.isEmpty(user))
       return {
         followers: [],
@@ -297,6 +296,38 @@ const companyService = {
       return {
         followers: rows,
         total: rows.length,
+      };
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Lấy thông tin không thành công'
+      );
+    }
+  },
+
+  getAllFollowByMe: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+    const type_role: TROLE = 'user';
+
+    const user: any = await queryDb(
+      'select * from follow where id_company=? and type_role=?',
+      [id_company, type_role]
+    );
+    if (_.isEmpty(user))
+      return {
+        followers: [],
+        name_company: company[0].name_company,
+      };
+
+    const rows: any = await queryDb(
+      'select id_user from follow where id_company=? and type_role=?',
+      [id_company, type_role]
+    );
+
+    if (rows.length > 0) {
+      return {
+        followers: rows,
+        name_company: company[0].name_company,
       };
     } else {
       throw new ApiError(

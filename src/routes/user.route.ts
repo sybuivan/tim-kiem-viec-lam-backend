@@ -38,11 +38,18 @@ router.put(
   '/update-notification/:id_notificatiton',
   userController.updateNotification
 );
+router.delete(
+  '/delete-notification/:id_notificatiton',
+  userController.deleteNotification
+);
+
 router.post(
   '/save-job',
   validate(userValidation.saveJob),
   userController.saveJob
 );
+router.get('/get-suggets-job-for-you', userController.getSuggetJobsForYou);
+
 router.delete(
   '/un-save-job',
   validate(userValidation.saveJob),

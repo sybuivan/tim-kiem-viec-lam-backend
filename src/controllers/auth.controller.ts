@@ -24,10 +24,14 @@ const authController = {
   }),
   login: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: IUser = req.body;
-    const { users, message } = await authService.login({
-      email,
-      password,
-    });
+    const id_role = 'user';
+    const { users, message } = await authService.login(
+      {
+        email,
+        password,
+      },
+      id_role
+    );
 
     if (users) {
       const { accessToken } = tokenService.generateToken(users);
@@ -38,6 +42,29 @@ const authController = {
       });
     }
   }),
+
+  loginAdmin: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { email, password }: IUser = req.body;
+      const id_role = 'admin';
+      const { users, message } = await authService.login(
+        {
+          email,
+          password,
+        },
+        id_role
+      );
+
+      if (users) {
+        const { accessToken } = tokenService.generateToken(users);
+
+        res.send({
+          users,
+          accessToken,
+        });
+      }
+    }
+  ),
 
   register: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {

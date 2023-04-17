@@ -27,11 +27,12 @@ const authService = {
       user: orther,
     };
   },
-  login: async (body: IUser) => {
+  login: async (body: IUser, id_role?: 'user' | 'admin') => {
     const { email, password } = body;
-    const user: any = await queryDb('select * from users where email=?', [
-      email,
-    ]);
+    const user: any = await queryDb(
+      'select * from users where email=? and id_role=?',
+      [email, id_role]
+    );
     if (_.isEmpty(user))
       throw new ApiError(
         httpStatus.BAD_REQUEST,

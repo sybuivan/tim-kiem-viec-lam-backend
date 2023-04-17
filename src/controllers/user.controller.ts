@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
+import jobService from '../services/job.service';
 import notificationService from '../services/notification.service';
 import userService from '../services/user.service';
 import { catchAsync } from '../utils/catchAsync';
@@ -143,6 +144,26 @@ const userController = {
       );
 
       res.status(httpStatus.OK).send(id_notification);
+    }
+  ),
+  deleteNotification: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id_notification = await notificationService.deleteNotification(
+        req.params.id_notificatiton
+      );
+
+      res.status(httpStatus.OK).send(id_notification);
+    }
+  ),
+
+  getSuggetJobsForYou: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou();
+      if (job_suggets_for_you) {
+        res.status(httpStatus.OK).send({
+          job_suggets_for_you,
+        });
+      }
     }
   ),
 };

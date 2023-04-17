@@ -158,10 +158,10 @@ const jobService = {
     }
   },
 
-  getJobById: async (id_job: string) => {
+  getJobById: async (id_job_params: string) => {
     const job: any = await queryDb(
       'select * from job, company,rangewage,experience,companyfield, typeRank where id_job=? and  typeRank.id_rank = job.id_type and job.id_field = companyfield.id_companyfield and rangewage.id_range = job.id_range and company.id_company = job.id_company and experience.id_experience = job.id_experience',
-      [id_job]
+      [id_job_params]
     );
     if (_.isEmpty(job))
       throw new ApiError(
@@ -170,8 +170,18 @@ const jobService = {
       );
 
     const { password, ...orther } = job[0];
+
+    const { name_job, id_job, id_range, work_location, id_field } = job[0];
+
+    const job_suggets: any = await queryDb(
+      `SELECT job.id_job,logo,name_company,work_location, name_job, name_range, name_experience FROM job, company,rangewage,experience WHERE company.id_company = job.id_company and rangewage.id_range = job.id_range and experience.id_experience = job.id_experience and job.id_job <> ? and (name_job LIKE '%${name_job}%' or job.id_range =? or work_location=? or id_field=?) limit 5`,
+      [id_job, id_range, work_location, id_field]
+    );
+
+    console.log({ job_suggets, name_job, id_range });
     return {
       job: orther,
+      job_suggets,
     };
   },
   getJobByIdCompany: async (id_job: string) => {
@@ -202,11 +212,13 @@ const jobService = {
     };
   },
 
-  getListJob: async () => {
+  getListJob: async (urgent_recruitment: number, limit?: number) => {
     // job có bật req hoặc deadline > 15 day và deadline > ngày hiện tại
+    let sql = limit ? 'limit 9' : '';
+
     const rows: any = await queryDb(
-      'select name_job, name_company, job.id_job, name_city, name_range, work_location, logo from city, job, company, rangewage where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = 1 or deadline > (NOW() + INTERVAL 20 DAY)) and DATE(deadline) > CURDATE()',
-      []
+      `select name_job, name_company, job.id_job, name_city, name_range, work_location, logo from city, job, company, rangewage where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and (urgent_recruitment = ? or deadline > (NOW() + INTERVAL 20 DAY)) and DATE(deadline) > CURDATE() ${sql}`,
+      [urgent_recruitment]
     );
 
     return {
@@ -216,13 +228,13 @@ const jobService = {
   },
 
   getLisJobFilters: async (queryParams: {
-    city: string;
-    companyfield: string;
-    keyword: string;
-    id_range: string;
-    id_experience: string;
-    id_rank: string;
-    page: number;
+    city?: string;
+    companyfield?: string;
+    keyword?: string;
+    id_range?: string;
+    id_experience?: string;
+    id_rank?: string;
+    page?: number;
   }) => {
     const {
       city = '',
@@ -269,6 +281,19 @@ const jobService = {
     return {
       data: rows,
       total: rowsList.length,
+    };
+  },
+
+  getSuggetJobsForYou: async () => {
+    const urgent_recruitment = 0;
+    const limit = 9;
+    const { data, total } = await jobService.getListJob(
+      urgent_recruitment,
+      limit
+    );
+    return {
+      job_suggets_for_you: data,
+      total,
     };
   },
 };

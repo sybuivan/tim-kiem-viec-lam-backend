@@ -318,7 +318,6 @@ const userService = {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bỏ save không thành công');
     }
   },
-
   getAllSaveJob: async (id_user: string) => {
     const jobs: any = await queryDb('select * from savejob where id_user=?', [
       id_user,

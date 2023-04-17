@@ -1,11 +1,18 @@
 import mysql from 'mysql2/promise';
-import { RowDataPacket, createPool } from 'mysql2';
+import { RowDataPacket } from 'mysql2';
 import config from './connectDb';
 
-async function queryDb(sql: any, params?: any) {
-  const connection = await mysql.createConnection(config.db);
-  const [results] = await connection.execute<RowDataPacket[]>(sql, params);
+const pool = mysql.createPool(config.db);
 
-  return results;
+async function queryDb(sql: any, params?: any) {
+  const connection = await pool.getConnection();
+  // const [results] = await connection.execute<RowDataPacket[]>(sql, params);
+  try {
+    const [results] = await connection.query<RowDataPacket[]>(sql, params);
+
+    return results;
+  } finally {
+    connection.release();
+  }
 }
 export default queryDb;

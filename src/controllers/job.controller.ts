@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
+import { sockets } from '..';
+import companyService from '../services/company.service';
 import jobService from '../services/job.service';
+import notificationService from '../services/notification.service';
 import { catchAsync } from '../utils/catchAsync';
 
 interface QueryDelete {
@@ -18,6 +21,10 @@ interface IQueryJob {
   page: number;
 }
 
+interface IQueryJobSugget {
+  work_location: string;
+}
+
 const jobController = {
   createJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -25,6 +32,24 @@ const jobController = {
         req.body,
         req.params.id_company
       );
+      const { followers, name_company } = await companyService.getAllFollowByMe(
+        req.params.id_company
+      );
+      if (followers.length > 0) {
+        const { results } = await notificationService.postNotification(
+          followers,
+          { id_job: job.id_job, name_job: job.name_job, name_company }
+        );
+        console.log({ results });
+        for (const notifi of results) {
+          if (sockets[notifi.id_user]) {
+            sockets[notifi.id_user].emit('notification', {
+              message: 'Bạn có 1 thông báo mới',
+              notifi,
+            });
+          }
+        }
+      }
       if (job) {
         res.status(httpStatus.CREATED).send({
           job,
@@ -56,10 +81,13 @@ const jobController = {
 
   getJobById: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { job } = await jobService.getJobById(req.params.id_job);
+      const { job, job_suggets } = await jobService.getJobById(
+        req.params.id_job
+      );
       if (job) {
         res.status(httpStatus.OK).send({
           job,
+          job_suggets,
         });
       }
     }
@@ -90,7 +118,8 @@ const jobController = {
   ),
   getListJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { data, total } = await jobService.getListJob();
+      const urgent_recruitment = 1;
+      const { data, total } = await jobService.getListJob(urgent_recruitment);
       if (data) {
         res.status(httpStatus.OK).send({
           data,
