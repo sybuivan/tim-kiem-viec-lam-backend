@@ -16,6 +16,7 @@ export const jobValidation = {
       benefits_job: Joi.string().required(),
       required_job: Joi.string().required(),
       work_location: Joi.string().required(),
+      urgent_recruitment: Joi.number().required(),
     }),
   },
   updateJob: {

@@ -23,6 +23,6 @@ router.post(
 );
 
 router.get('/get-room/:id_user/:id_role', chatController.getRoom);
-router.get('/get-messages/:id_room', chatController.getMessages);
+router.get('/get-messages/:id_room/:id_role', chatController.getMessages);
 
 export default router;

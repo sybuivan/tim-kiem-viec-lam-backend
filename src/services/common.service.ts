@@ -17,7 +17,7 @@ export const findUserByid = async (id_user: string) => {
 
 export const findCompanyByid = async (id_company: string) => {
   const company: any = await queryDb(
-    'select * from company where id_company=?',
+    'select * from users, company where users.id_user = company.id_company and id_company=?',
     [id_company]
   );
   if (_.isEmpty(company))
@@ -25,7 +25,6 @@ export const findCompanyByid = async (id_company: string) => {
       httpStatus.BAD_REQUEST,
       'Không tìm thấy thông tin công ty'
     );
-
   return {
     company,
   };

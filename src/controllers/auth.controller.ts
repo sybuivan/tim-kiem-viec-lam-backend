@@ -3,21 +3,48 @@ import httpStatus from 'http-status';
 import { authService, tokenService } from '../services';
 import { IUser } from '../types/auth';
 import { catchAsync } from '../utils/catchAsync';
+import userService from '../services/user.service';
+import jobService from '../services/job.service';
+import notificationService from '../services/notification.service';
 
 const authController = {
   getMe: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const {
       email,
+      id_role,
     }: {
       email: string;
+      id_role: string;
     } = req.body;
-    const { user } = await authService.getMe(email);
+    const { users } = await authService.getMe(email, id_role);
 
-    if (user) {
-      const { accessToken } = tokenService.generateToken(user);
+    if (users) {
+      const { accessToken } = tokenService.generateToken(users);
+      const { profile_cv } = await userService.getProfileCV(users.id_user);
+      const { followers, total_follow } = await userService.getAllFollowUser(
+        users.id_user
+      );
+      const { savedList, total } = await userService.getAllSaveJob(
+        users.id_user
+      );
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou();
+
+      const { notificationList, total_notification } =
+        await notificationService.getNotification(users.id_user);
 
       res.send({
-        user,
+        users,
+        profile_cv,
+        notification: { notificationList, total_notification },
+        followList: {
+          followers,
+          total_follow,
+        },
+        jobSuggets: { job_suggets_for_you },
+        saveJobList: {
+          savedList,
+          total,
+        },
         accessToken,
       });
     }
@@ -35,9 +62,30 @@ const authController = {
 
     if (users) {
       const { accessToken } = tokenService.generateToken(users);
+      const { profile_cv } = await userService.getProfileCV(users.id_user);
+      const { followers, total_follow } = await userService.getAllFollowUser(
+        users.id_user
+      );
+      const { savedList, total } = await userService.getAllSaveJob(
+        users.id_user
+      );
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou();
 
+      const { notificationList, total_notification } =
+        await notificationService.getNotification(users.id_user);
       res.send({
         users,
+        profile_cv,
+        notification: { notificationList, total_notification },
+        followList: {
+          followers,
+          total_follow,
+        },
+        jobSuggets: { job_suggets_for_you },
+        saveJobList: {
+          savedList,
+          total,
+        },
         accessToken,
       });
     }

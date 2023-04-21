@@ -133,7 +133,21 @@ const companyController = {
 
   followUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { followers, total } = await companyService.followUser(req.body);
+      const { followers, total, name_company, id_user } =
+        await companyService.followUser(req.body);
+
+      const notifi = await notificationService.followNotification({
+        full_name: name_company,
+        id_user,
+      });
+
+      if (sockets[id_user]) {
+        sockets[id_user].emit('notification', {
+          message: 'Bạn có 1 thông báo mới',
+          notifi: notifi[0],
+        });
+      }
+
       if (followers) {
         res.status(httpStatus.CREATED).send({
           followers,
@@ -191,7 +205,6 @@ const companyController = {
     async (req: Request, res: Response, next: NextFunction) => {
       const { users } = await companyService.updateStatusApplied(req.body);
       const { results } = await notificationService.applyNotification(req.body);
-      console.log({ results });
       for (const notifi of results) {
         if (sockets[notifi.id_user]) {
           sockets[notifi.id_user].emit('notification', {

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
+import { sockets } from '..';
 import jobService from '../services/job.service';
 import notificationService from '../services/notification.service';
 import userService from '../services/user.service';
@@ -65,7 +66,22 @@ const userController = {
 
   followCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { follow } = await userService.followCompany(req.body);
+      const { follow, full_name, id_company } = await userService.followCompany(
+        req.body
+      );
+      const notifi = await notificationService.followNotification({
+        full_name,
+        id_user: id_company,
+      });
+
+      console.log({ notifi });
+
+      if (sockets[id_company]) {
+        sockets[id_company].emit('notification', {
+          message: 'Bạn có 1 thông báo mới',
+          notifi: notifi[0],
+        });
+      }
       if (follow) {
         res.status(httpStatus.CREATED).send({
           follow,
@@ -76,21 +92,23 @@ const userController = {
 
   unFollowCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { followers, total } = await userService.unFollowCompany(req.body);
-      res.status(httpStatus.OK).send({ followers, total });
+      const { followers, total_follow } = await userService.unFollowCompany(
+        req.body
+      );
+      res.status(httpStatus.OK).send({ followers, total_follow });
     }
   ),
 
   getAllFollowUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { followers, total } = await userService.getAllFollowUser(
+      const { followers, total_follow } = await userService.getAllFollowUser(
         req.params.id_user
       );
 
       if (followers) {
         res.status(httpStatus.OK).send({
           followers,
-          total,
+          total_follow,
         });
       }
     }
@@ -131,10 +149,10 @@ const userController = {
 
   getNotification: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { notificationList, total } =
+      const { notificationList, total_notification } =
         await notificationService.getNotification(req.params.id_user);
 
-      res.status(httpStatus.OK).send({ notificationList, total });
+      res.status(httpStatus.OK).send({ notificationList, total_notification });
     }
   ),
   updateNotification: catchAsync(

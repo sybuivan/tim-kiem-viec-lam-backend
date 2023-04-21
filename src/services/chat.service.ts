@@ -40,10 +40,9 @@ const chatService = {
   },
 
   getRoom: async (id_user: string, id_role: 'user' | 'company') => {
-    const rooms: any = await queryDb(
-      `SELECT r.id_room, r.id_user, r.id_company, c.message, created_at,fullName,${
-        id_role === 'company' ? 'avatar' : 'logo'
-      }
+    if (id_role === 'user') {
+      const rooms: any = await queryDb(
+        `SELECT r.id_room, r.id_user, r.id_company, c.message, created_at,name_company as fullName,logo
     FROM room r 
     INNER JOIN ( 
         SELECT id_room, message, created_at 
@@ -53,27 +52,48 @@ const chatService = {
             FROM chat 
             GROUP BY id_room
         )
-    ) c ON r.id_room = c.id_room ,
-    ${
-      id_role === 'company'
-        ? 'users u where u.id_user = r.id_user and  r.id_company = ?'
-        : 'company where company.id_company = r.id_company and  r.id_user = ?'
-    }`,
-      [id_user]
-    );
-
-    // console.log({ rooms, id_user });
-
-    if (rooms) {
-      return {
-        rooms,
-        total: rooms.length,
-      };
-    } else {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Lấy danh sách không thành công'
+    ) c ON r.id_room = c.id_room , company where company.id_company = r.id_company and  r.id_user = ?`,
+        [id_user]
       );
+
+      if (rooms) {
+        return {
+          rooms,
+          total: rooms.length,
+        };
+      } else {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Lấy danh sách không thành công'
+        );
+      }
+    } else {
+      const rooms: any = await queryDb(
+        `SELECT r.id_room, r.id_user, r.id_company, c.message, created_at,fullName,avatar
+    FROM room r 
+    INNER JOIN ( 
+        SELECT id_room, message, created_at 
+        FROM chat 
+        WHERE (id_room, created_at) IN (
+            SELECT id_room, MAX(created_at) 
+            FROM chat 
+            GROUP BY id_room
+        )
+    ) c ON r.id_room = c.id_room, users where users.id_user = r.id_user and r.id_company = ?`,
+        [id_user]
+      );
+
+      if (rooms) {
+        return {
+          rooms,
+          total: rooms.length,
+        };
+      } else {
+        throw new ApiError(
+          httpStatus.BAD_REQUEST,
+          'Lấy danh sách không thành công'
+        );
+      }
     }
   },
   createMessage: async (body: IMessage) => {
@@ -102,19 +122,33 @@ const chatService = {
       );
     }
   },
-  getMessages: async (id_room: string) => {
+  getMessages: async (id_room: string, id_role: 'user' | 'company') => {
     const messages: any = await queryDb(
       'select * from chat where id_room=? order by created_at asc',
       [id_room]
     );
-    const room: any = await queryDb(
-      'select id_room,fullName,avatar,room.id_user, room.id_company from room, users where users.id_user = room.id_user and id_room=?',
-      [id_room]
-    );
-    return {
-      messages: messages,
-      room: room[0],
-    };
+
+    if (id_role === 'company') {
+      const room: any = await queryDb(
+        'select id_room,fullName,avatar,room.id_user, room.id_company from room, users where users.id_user = room.id_user and id_room=?',
+        [id_room]
+      );
+
+      console.log({ room });
+      return {
+        messages: messages,
+        room: room[0],
+      };
+    } else {
+      const room: any = await queryDb(
+        'select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_company from room, company where company.id_company = room.id_company and id_room=?',
+        [id_room]
+      );
+      return {
+        messages: messages,
+        room: room[0],
+      };
+    }
   },
 
   createNewMessage: async (body: IMessage) => {

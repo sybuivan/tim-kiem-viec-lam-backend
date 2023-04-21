@@ -8,7 +8,12 @@ import { findUserByid } from './common.service';
 
 const notificationService = {
   applyNotification: async (
-    listApply: { id_apply: string; status: number; id_user: string }[]
+    listApply: {
+      id_apply: string;
+      status: number;
+      id_user: string;
+      name_job: string;
+    }[]
   ) => {
     let results: any = [];
     for (let i = 0; i < listApply.length; i++) {
@@ -26,7 +31,7 @@ const notificationService = {
             id_notification,
             listApply[i].id_apply,
             listApply[i].id_user,
-            messageApplied('Lâp trình reactJS', listApply[i].status),
+            messageApplied(listApply[i].name_job, listApply[i].status),
             created_at,
           ]
         );
@@ -87,6 +92,35 @@ const notificationService = {
     return { results };
   },
 
+  followNotification: async ({
+    full_name,
+    id_user,
+  }: {
+    id_user: string;
+    full_name: string;
+  }) => {
+    const rows: any = await queryDb('select * from users where id_user=?', [
+      id_user,
+    ]);
+
+    if (rows.length > 0) {
+      const id_notification = uniqid();
+      const content = `${full_name} đang theo dõi bạn`;
+      const created_at = new Date();
+      const result: any = await queryDb(
+        `insert into notification(id_notification,id_user,content,created_at) values(?,?,?,?)`,
+        [id_notification, id_user, content, created_at]
+      );
+
+      const notifi: any = await queryDb(
+        'select * from notification where id_notification=?',
+        [id_notification]
+      );
+
+      return notifi;
+    }
+  },
+
   getNotification: async (id_user: string) => {
     await findUserByid(id_user);
     const rows: any = await queryDb(
@@ -100,7 +134,7 @@ const notificationService = {
 
     return {
       notificationList: rows,
-      total: notification.length,
+      total_notification: notification.length,
     };
   },
   updateNotification: async (id_notification: string) => {

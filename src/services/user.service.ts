@@ -26,8 +26,6 @@ const userService = {
 
     let avatarFile = '';
 
-    console.log(birthDay);
-
     const user: any = await queryDb('select * from users where id_user=?', [
       id_user,
     ]);
@@ -200,8 +198,14 @@ const userService = {
         [id_company, type_role]
       );
 
+      const user: any = await queryDb('select * from users where id_user=?', [
+        id_user,
+      ]);
+
       return {
         follow,
+        full_name: user[0].fullName,
+        id_company,
       };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Follow không thành công');
@@ -225,8 +229,10 @@ const userService = {
     );
 
     if (rows.insertId >= 0) {
-      const { followers, total } = await userService.getAllFollowUser(id_user);
-      return { followers, total };
+      const { followers, total_follow } = await userService.getAllFollowUser(
+        id_user
+      );
+      return { followers, total_follow };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Bỏ follow không thành công');
     }
@@ -242,7 +248,7 @@ const userService = {
     if (_.isEmpty(user))
       return {
         followers: [],
-        total: 0,
+        total_follow: 0,
       };
 
     const rows: any = await queryDb(
@@ -253,13 +259,13 @@ const userService = {
     if (rows.length === 0)
       return {
         followers: [],
-        total: 0,
+        total_follow: 0,
       };
 
     if (rows.length > 0) {
       return {
         followers: rows,
-        total: rows.length,
+        total_follow: rows.length,
       };
     } else {
       throw new ApiError(

@@ -20,9 +20,12 @@ const saltRounds = 10;
 const companyService = {
   login: async (body: IPayloadLogin) => {
     const { email, password } = body;
-    const user: any = await queryDb('select * from company where email=?', [
-      email,
-    ]);
+    const id_role = 'company';
+    const user: any = await queryDb(
+      'select * from users where email=? and id_role=?',
+      [email, id_role]
+    );
+
     if (_.isEmpty(user))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -33,9 +36,13 @@ const companyService = {
       String(user[0].password).trim()
     );
     if (match) {
-      const { password, ...users } = user[0];
+      const users: any = await queryDb(
+        'select * from users, company where users.id_user = company.id_company and email=? and id_role=?',
+        [email, id_role]
+      );
+      const { password, ...other } = users[0];
       return {
-        users,
+        users: other,
         message: 'Đăng nhập thành công',
       };
     } else {
@@ -58,30 +65,30 @@ const companyService = {
     } = body;
     const id_role = 'company';
     const id_company = uniqid();
-
     const user: any = await queryDb(
-      'select * from company where email=? and id_role=?',
+      'select * from users where email=? and id_role=?',
       [email, id_role]
     );
     if (!_.isEmpty(user))
       throw new ApiError(httpStatus.BAD_REQUEST, 'Tài khoản đã tồn tại');
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
+    const result: any = await queryDb(
+      'insert into users(email, fullName, password, id_role, id_user) values(?,?,?,?,?)',
+      [email, fullName, hashPassword, id_role, id_company]
+    );
+
     const rows: any = await queryDb(
-      'insert into company(id_role,password,address,city,email,fullName,name_company,phone,total_people,faxCode,idCompanyField,id_company) values(?,?,?,?,?,?,?,?,?,?,?,?)',
+      'insert into company(id_company,address,city,name_company,phone,total_people,faxCode,idCompanyField) values(?,?,?,?,?,?,?,?)',
       [
-        id_role,
-        hashPassword,
+        id_company,
         address,
         city,
-        email,
-        fullName,
         name_company,
         phone,
         total_people,
         faxCode,
         fieldOfActivity,
-        id_company,
       ]
     );
     if (rows.insertId >= 0) {
@@ -127,11 +134,17 @@ const companyService = {
       logoFile = company[0].logo;
     }
 
+    if (fullName) {
+      const user: any = await queryDb(
+        'update users set fullName=? where id_user=?',
+        [fullName, id_company]
+      );
+    }
+
     const rows: any = await queryDb(
-      'UPDATE company set cover_image=?,email = ?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, fullName=?, phone=?, faxCode=? where id_company = ?',
+      'UPDATE company set cover_image=?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, phone=?, faxCode=? where id_company = ?',
       [
         coverImage,
-        email,
         address,
         introduce,
         lat,
@@ -142,13 +155,13 @@ const companyService = {
         link_website,
         idCompanyField,
         city,
-        fullName,
         phone,
         faxCode,
         id_company,
       ]
     );
     if (rows.insertId >= 0) {
+      const { company } = await findCompanyByid(id_company);
       const { password, ...orther } = company[0];
       return {
         company: orther,
@@ -244,6 +257,8 @@ const companyService = {
       return {
         followers: rows,
         total: rows.length,
+        name_company: company[0].name_company,
+        id_user,
       };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Follow không thành công');

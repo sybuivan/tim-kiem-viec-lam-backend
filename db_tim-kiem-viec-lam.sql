@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 11, 2023 at 05:51 AM
+-- Generation Time: Apr 21, 2023 at 10:28 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.0.25
 
@@ -31,7 +31,7 @@ CREATE TABLE `apply` (
   `id_apply` varchar(100) NOT NULL,
   `id_job` varchar(100) NOT NULL,
   `id_user` varchar(100) NOT NULL,
-  `cv_file` varchar(255) NOT NULL,
+  `file_cv` varchar(255) NOT NULL,
   `introducing_letter` text NOT NULL,
   `created_at` date NOT NULL,
   `status` int(11) NOT NULL
@@ -41,8 +41,8 @@ CREATE TABLE `apply` (
 -- Dumping data for table `apply`
 --
 
-INSERT INTO `apply` (`id_apply`, `id_job`, `id_user`, `cv_file`, `introducing_letter`, `created_at`, `status`) VALUES
-('1gcbnslg9fbk3c', '1gc5b8lg62t3id', '1gc710lfdu4aez', '', '123', '2023-04-09', 0);
+INSERT INTO `apply` (`id_apply`, `id_job`, `id_user`, `file_cv`, `introducing_letter`, `created_at`, `status`) VALUES
+('1gcct4lgonv27c', '1gcct4lgonfk5h', '1gc710lfdu4aez', '', '123', '2023-04-20', 3);
 
 -- --------------------------------------------------------
 
@@ -65,15 +65,10 @@ CREATE TABLE `chat` (
 --
 
 INSERT INTO `chat` (`id_chat`, `id_room`, `id_user`, `id_company`, `message`, `created_at`, `sender`) VALUES
-('1gc2pclg99dggt', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chào sỹ. Chị là HR công ty Phạm Văn Thiên', '2023-04-09 17:25:03', 'user'),
-('1gc2pclg99ehvt', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chào sỹ. Chị là HR công ty Phạm Văn ThiênChào sỹ. Chị là HR công ty Phạm Văn ThiênChào sỹ. Chị là HR công ty Phạm Văn Thiên', '2023-04-09 17:25:51', 'user'),
-('1gc2pclg99w0o4', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Hello', '2023-04-09 17:39:29', 'company'),
-('1gc2pclg9bq7h8', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chao', '2023-04-09 18:30:57', 'company'),
-('1gc2pclg9bqg5i', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'chaof', '2023-04-09 18:31:08', 'user'),
-('1gc2pclg9bstmb', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Xin chao', '2023-04-09 18:32:59', 'user'),
-('1gccnclgboat5d', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chat', '2023-04-11 09:58:26', 'user'),
-('1gccnclgbobi6l', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chat tiep', '2023-04-11 09:58:58', 'company'),
-('1gccnclgbobtfu', '1gc4e8lg671ev7', '1gc710lfdu4aez', '144lfl8wp76', 'Chat hah', '2023-04-11 09:59:13', 'user');
+('1gc6zslgoojlq1', '1gcct4lgonw77g', '1gc710lfdu4aez', '1gc3uklgomt0oc', 'Chaooo', '2023-04-20 12:26:17', 'company'),
+('1gc6zslgook8pz', '1gcct4lgonw77g', '1gc710lfdu4aez', '1gc3uklgomt0oc', 'Chaoo', '2023-04-20 12:26:46', 'user'),
+('1gcas4lgoo7ns5', '1gcct4lgonw77g', '1gc710lfdu4aez', '1gc3uklgomt0oc', 'Chaof', '2023-04-20 12:16:59', 'user'),
+('1gcct4lgonw780', '1gcct4lgonw77g', '1gc710lfdu4aez', '1gc3uklgomt0oc', 'Xin Chao\n', '2023-04-20 12:08:05', 'company');
 
 -- --------------------------------------------------------
 
@@ -163,7 +158,6 @@ INSERT INTO `city` (`id_city`, `name_city`) VALUES
 
 CREATE TABLE `company` (
   `id_company` varchar(100) NOT NULL,
-  `id_role` varchar(100) NOT NULL,
   `name_company` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `total_people` varchar(255) NOT NULL,
@@ -174,11 +168,8 @@ CREATE TABLE `company` (
   `lng` int(11) NOT NULL,
   `cover_image` varchar(255) NOT NULL,
   `active_status` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `fullName` varchar(255) NOT NULL,
   `faxCode` varchar(255) NOT NULL,
-  `phone` int(11) NOT NULL,
+  `phone` varchar(11) NOT NULL,
   `idCompanyField` varchar(100) NOT NULL,
   `city` varchar(155) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -187,8 +178,8 @@ CREATE TABLE `company` (
 -- Dumping data for table `company`
 --
 
-INSERT INTO `company` (`id_company`, `id_role`, `name_company`, `address`, `total_people`, `introduce`, `logo`, `link_website`, `lat`, `lng`, `cover_image`, `active_status`, `email`, `password`, `fullName`, `faxCode`, `phone`, `idCompanyField`, `city`) VALUES
-('144lfl8wp76', 'company', 'Công ty Tifo', '192.168.2.3', '10-150 người ', '123', 'http://localhost:5000/1679669517043IMG_4414.JPG', '', 0, 0, 'http://localhost:5000/1679669517043IMG_4414.JPG', 1, 'sybuivan1429@gmail.com', '$2b$10$hDzwu2BtNGJ/Ze5bibmHyOxnzTzPczNrZ.bNa40RczSBBaHdJqB/m', 'HR Pham Van Thien', '20t1', 21, 'ITPM', 'Bắc Kạn');
+INSERT INTO `company` (`id_company`, `name_company`, `address`, `total_people`, `introduce`, `logo`, `link_website`, `lat`, `lng`, `cover_image`, `active_status`, `faxCode`, `phone`, `idCompanyField`, `city`) VALUES
+('1gc3uklgomt0oc', 'Công ty DANATEQ', 'http://localhost', '10-150 người ', '123', 'http://localhost:5000/1682054142866thao-le.jpg', 'http://localhost', 0, 0, 'http://localhost:5000/1682054142866thao-le.jpg', 0, '192.168.2.3', '0947895037', 'ITPC', 'Đà Nẵng');
 
 -- --------------------------------------------------------
 
@@ -247,8 +238,8 @@ CREATE TABLE `follow` (
 --
 
 INSERT INTO `follow` (`id_company`, `id_user`, `type_role`, `created_at`) VALUES
-('144lfl8wp76', '1gc710lfdu4aez', 'company', '2023-04-09'),
-('144lfl8wp76', '1gcck0lg61fe1u', 'user', '2023-04-07');
+('1gc3uklgomt0oc', '1gc710lfdu4aez', 'company', '2023-04-20'),
+('1gc3uklgomt0oc', '1gc710lfdu4aez', 'user', '2023-04-21');
 
 -- --------------------------------------------------------
 
@@ -281,24 +272,56 @@ CREATE TABLE `job` (
 --
 
 INSERT INTO `job` (`id_job`, `id_company`, `city`, `id_field`, `id_type`, `id_range`, `id_experience`, `name_job`, `deadline`, `size_number`, `description_job`, `required_job`, `created_at`, `work_location`, `urgent_recruitment`, `id_working_form`, `benefits_job`) VALUES
-('1gc5b8lg62t3id', '144lfl8wp76', 'Bình Phước', 'ITPM', 'CTV', '1T-3T', '1N', 'Lập trình viên Frontend(ReactJS)', '2023-04-20', 1, '123', '123', '2023-04-07', '123', 1, 'TTG', '123'),
-('1gccnclgbnplzd', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrby5', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrcg9', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrcsy', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrd0j', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrd5u', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrdb5', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrdgc', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrdlp', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrdqv', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrdw7', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnre1m', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnre6e', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnreca', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnregx', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnremi', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1'),
-('1gccnclgbnrerm', '144lfl8wp76', 'Đà Nẵng', 'ITPC', 'CTV', '1T-3T', '1N', 'Nhân Viên Tư Vấn Ngành Tài Chính', '2023-04-28', 12, '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '<ul><li>Giới thiệu, tư vấn khách hàng những thông tin về sản phẩm, dịch vụ tài chính theo data có sẵn</li><li>Tiếp nhận, hoàn thành hồ sơ vay, hướng dẫn thủ tục giải ngân cho khách hàng</li><li>Phát triển mối quan hệ khách hàng</li><li>Thời gian làm việc: 8h30 - 5h30: Thứ 2 - Thứ 6 &amp; sáng thứ 7</li><li>Địa chỉ làm việc: Toà nhà Pico - Số 20 Cộng Hoà, P.12, Q.Tân Bình</li></ul>', '2023-04-11', 'TP.HCM', 1, 'TTG', '1');
+('1gcct4lgonfk5h', '1gc3uklgomt0oc', 'Cà Mau', 'ITPC', 'CTV', '3T-6T', '1N', 'https://121212121', '2023-04-27', 1, '123213', '2q3213', '2023-04-20', 'asd', 0, 'TTG', '123213');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `id_notification` varchar(100) NOT NULL,
+  `id_apply` varchar(100) DEFAULT NULL,
+  `id_user` varchar(100) DEFAULT NULL,
+  `id_job` varchar(100) DEFAULT NULL,
+  `content` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `status` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `notification`
+--
+
+INSERT INTO `notification` (`id_notification`, `id_apply`, `id_user`, `id_job`, `content`, `created_at`, `status`) VALUES
+('1gc7q8lgq8ks35', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 14:34:50', 0),
+('1gc7q8lgq8my96', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 14:36:31', 0),
+('1gc7q8lgq8nh8f', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 14:36:56', 0),
+('1gc7q8lgq8ovte', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:38:01', 0),
+('1gc7q8lgq8q2xq', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:38:57', 0),
+('1gc7q8lgq8q5tc', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:39:01', 0),
+('1gc7q8lgq8tokr', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:41:45', 0),
+('1gc7q8lgq8uuja', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:42:40', 0),
+('1gc7q8lgq957d1', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã liên hệ', '2023-04-21 14:50:43', 0),
+('1gc7q8lgq959pa', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã liên hệ', '2023-04-21 14:50:46', 0),
+('1gc7q8lgq95ctq', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:50:50', 0),
+('1gc7q8lgq96v7o', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:52:00', 0),
+('1gc7q8lgq988r9', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:53:05', 0),
+('1gc7q8lgq98cex', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 14:53:09', 0),
+('1gc7q8lgq9l3yh', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:03:05', 0),
+('1gc7q8lgq9lejz', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:03:19', 0),
+('1gc7q8lgq9nsjg', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 15:05:10', 0),
+('1gc7q8lgq9ozeo', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:06:06', 0),
+('1gc7q8lgq9v26f', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 15:10:49', 0),
+('1gc7q8lgq9v3r6', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:10:51', 0),
+('1gc7q8lgq9v5s3', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:10:54', 0),
+('1gc7q8lgq9vl0s', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã liên hệ', '2023-04-21 15:11:14', 0),
+('1gc7q8lgq9xz8u', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã xem hồ sơ', '2023-04-21 15:13:05', 0),
+('1gc7q8lgq9zcux', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:14:10', 0),
+('1gc7q8lgqaesa4', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã liên hệ', '2023-04-21 15:26:09', 0),
+('1gc7q8lgqaexwu', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:26:17', 0),
+('1gc7q8lgqaf48h', '1gcct4lgonv27c', '1gc710lfdu4aez', NULL, 'Trạng thái hồ sơ ứng tuyển vị trí https://121212121 đã từ chối', '2023-04-21 15:26:25', 0);
 
 -- --------------------------------------------------------
 
@@ -385,7 +408,7 @@ CREATE TABLE `room` (
 --
 
 INSERT INTO `room` (`id_user`, `id_company`, `id_room`) VALUES
-('1gc710lfdu4aez', '144lfl8wp76', '1gc4e8lg671ev7');
+('1gc710lfdu4aez', '1gc3uklgomt0oc', '1gcct4lgonw77g');
 
 -- --------------------------------------------------------
 
@@ -398,13 +421,6 @@ CREATE TABLE `savejob` (
   `id_job` varchar(100) NOT NULL,
   `created_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `savejob`
---
-
-INSERT INTO `savejob` (`id_user`, `id_job`, `created_at`) VALUES
-('1gc710lfdu4aez', '1gc5b8lg62t3id', '2023-04-09');
 
 -- --------------------------------------------------------
 
@@ -436,7 +452,7 @@ CREATE TABLE `users` (
   `id_role` varchar(100) NOT NULL,
   `fullName` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `phone` int(11) DEFAULT NULL,
+  `phone` varchar(11) DEFAULT NULL,
   `id_experience` varchar(100) DEFAULT NULL,
   `gender` varchar(5) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
@@ -452,8 +468,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id_user`, `id_role`, `fullName`, `email`, `phone`, `id_experience`, `gender`, `password`, `birthDay`, `address`, `city`, `avatar`, `is_update_profle`) VALUES
-('1gc710lfdu4aez', 'user', 'Bui Van Sy', 'sybuivan1429@gmail.com', 14241, NULL, 'Nam', '$2b$10$jN/xfi0pduESBxnc9hILs.OOWUxt.jVnyz9/Xx2bIJMIoW7tCQ7vu', '2023-04-08', 'https://api', 'Bến Tre', 'http://localhost:5000/1679316128486IMG_4414.JPG', 1),
-('1gcck0lg61fe1u', 'user', 'Tran Y Tien', 'tientran14@gmail.com', NULL, NULL, NULL, '$2b$10$H9AdfbN3nHIfLPEfM..6/eOtZ62Yi/SfmXS83vcC13uImJ8IRhGjG', NULL, NULL, '', NULL, NULL);
+('1gc3uklgomt0oc', 'company', 'Lê Thị Thảo', 'sybuivan1429@gmail.com', NULL, NULL, NULL, '$2b$10$G76AUGP4Wl3ndNpWPD7mmO2ykMjjaLLcXyFnQ5NNx28mM2CWjPULm', NULL, NULL, '', NULL, NULL),
+('1gc710lfdu4aez', 'user', 'Bui Van Sy', 'sybuivan1429@gmail.com', '038911223', NULL, 'Nam', '$2b$10$jN/xfi0pduESBxnc9hILs.OOWUxt.jVnyz9/Xx2bIJMIoW7tCQ7vu', '1999-04-08', 'https://api', 'Bến Tre', 'http://localhost:5000/1679316128486IMG_4414.JPG', 1),
+('1gcck0lg61fe1u', 'user', 'Tran Y Tien', 'tientran14@gmail.com', NULL, NULL, NULL, '$2b$10$H9AdfbN3nHIfLPEfM..6/eOtZ62Yi/SfmXS83vcC13uImJ8IRhGjG', NULL, NULL, '', NULL, NULL),
+('1gcd88lgniqadt', 'user', 'Trần y Tiến', 'tranytien@gmail.com', NULL, NULL, NULL, '$2b$10$iB57I3mhq0fwBCMxYlenluTej5J1V2I49yEXjPVySjT26LbR/tZWW', NULL, NULL, '', NULL, NULL),
+('1gcekslgeljvww', 'admin', 'Quản trị viên', 'admin123@gmail.com', NULL, NULL, NULL, '$2b$10$byb3b/SFnt/Exa/H0sPAmOxhVnWpDJYODhdVm4cv2bzfgqysR9Pka', NULL, NULL, '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -491,9 +510,9 @@ ALTER TABLE `apply`
 --
 ALTER TABLE `chat`
   ADD PRIMARY KEY (`id_chat`),
-  ADD KEY `id_room` (`id_room`),
   ADD KEY `id_user` (`id_user`),
-  ADD KEY `id_company` (`id_company`);
+  ADD KEY `id_company` (`id_company`),
+  ADD KEY `chat_ibfk_1` (`id_room`);
 
 --
 -- Indexes for table `city`
@@ -506,7 +525,6 @@ ALTER TABLE `city`
 --
 ALTER TABLE `company`
   ADD PRIMARY KEY (`id_company`),
-  ADD KEY `id_role` (`id_role`),
   ADD KEY `city` (`city`),
   ADD KEY `idCompanyField` (`idCompanyField`);
 
@@ -527,7 +545,7 @@ ALTER TABLE `experience`
 --
 ALTER TABLE `follow`
   ADD PRIMARY KEY (`id_company`,`id_user`,`type_role`),
-  ADD KEY `id_user` (`id_user`);
+  ADD KEY `follow_ibfk_1` (`id_user`);
 
 --
 -- Indexes for table `job`
@@ -541,6 +559,15 @@ ALTER TABLE `job`
   ADD KEY `id_range` (`id_range`),
   ADD KEY `id_type` (`id_type`),
   ADD KEY `id_working_form` (`id_working_form`);
+
+--
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`id_notification`),
+  ADD KEY `notification_ibfk_1` (`id_apply`),
+  ADD KEY `notification_ibfk_2` (`id_user`),
+  ADD KEY `notification_ibfk_3` (`id_job`);
 
 --
 -- Indexes for table `profile_cv`
@@ -579,7 +606,7 @@ ALTER TABLE `room`
 --
 ALTER TABLE `savejob`
   ADD PRIMARY KEY (`id_user`,`id_job`),
-  ADD KEY `id_job` (`id_job`);
+  ADD KEY `savejob_ibfk_2` (`id_job`);
 
 --
 -- Indexes for table `typerank`
@@ -616,7 +643,7 @@ ALTER TABLE `apply`
 -- Constraints for table `chat`
 --
 ALTER TABLE `chat`
-  ADD CONSTRAINT `chat_ibfk_1` FOREIGN KEY (`id_room`) REFERENCES `room` (`id_room`),
+  ADD CONSTRAINT `chat_ibfk_1` FOREIGN KEY (`id_room`) REFERENCES `room` (`id_room`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `chat_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
   ADD CONSTRAINT `chat_ibfk_3` FOREIGN KEY (`id_company`) REFERENCES `company` (`id_company`);
 
@@ -624,16 +651,16 @@ ALTER TABLE `chat`
 -- Constraints for table `company`
 --
 ALTER TABLE `company`
-  ADD CONSTRAINT `company_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `roleuser` (`id_role`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `company_ibfk_2` FOREIGN KEY (`city`) REFERENCES `city` (`id_city`),
-  ADD CONSTRAINT `company_ibfk_3` FOREIGN KEY (`idCompanyField`) REFERENCES `companyfield` (`id_companyField`);
+  ADD CONSTRAINT `company_ibfk_3` FOREIGN KEY (`idCompanyField`) REFERENCES `companyfield` (`id_companyField`),
+  ADD CONSTRAINT `company_ibfk_4` FOREIGN KEY (`id_company`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `follow`
 --
 ALTER TABLE `follow`
-  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
-  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`id_company`) REFERENCES `company` (`id_company`);
+  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE,
+  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`id_company`) REFERENCES `company` (`id_company`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `job`
@@ -646,6 +673,14 @@ ALTER TABLE `job`
   ADD CONSTRAINT `job_ibfk_5` FOREIGN KEY (`id_range`) REFERENCES `rangewage` (`id_range`),
   ADD CONSTRAINT `job_ibfk_6` FOREIGN KEY (`id_type`) REFERENCES `typerank` (`id_rank`),
   ADD CONSTRAINT `job_ibfk_7` FOREIGN KEY (`id_working_form`) REFERENCES `working_form` (`id_working_form`);
+
+--
+-- Constraints for table `notification`
+--
+ALTER TABLE `notification`
+  ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`id_apply`) REFERENCES `apply` (`id_apply`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_ibfk_3` FOREIGN KEY (`id_job`) REFERENCES `job` (`id_job`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `profile_cv`
@@ -669,8 +704,8 @@ ALTER TABLE `room`
 -- Constraints for table `savejob`
 --
 ALTER TABLE `savejob`
-  ADD CONSTRAINT `savejob_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`),
-  ADD CONSTRAINT `savejob_ibfk_2` FOREIGN KEY (`id_job`) REFERENCES `job` (`id_job`);
+  ADD CONSTRAINT `savejob_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `savejob_ibfk_2` FOREIGN KEY (`id_job`) REFERENCES `job` (`id_job`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`

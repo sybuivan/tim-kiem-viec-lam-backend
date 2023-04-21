@@ -48,7 +48,8 @@ const chatController = {
   getMessages: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { messages, room } = await chatService.getMessages(
-        req.params.id_room
+        req.params.id_room,
+        req.params.id_role as unknown as 'user' | 'company'
       );
       return res.status(httpStatus.OK).send({
         messages,

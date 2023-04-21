@@ -11,20 +11,21 @@ var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const authService = {
-  getMe: async (email: string) => {
-    const user: any = await queryDb('select * from users where email=?', [
-      email,
-    ]);
-    if (_.isEmpty(user))
+  getMe: async (email: string, id_role: string) => {
+    const users: any = await queryDb(
+      'select * from users where email=? and id_role=?',
+      [email, id_role]
+    );
+    if (_.isEmpty(users))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         'Không tìm thấy tài khoản người dùng'
       );
 
-    const { password, ...orther } = user[0];
+    const { password, ...orther } = users[0];
 
     return {
-      user: orther,
+      users: orther,
     };
   },
   login: async (body: IUser, id_role?: 'user' | 'admin') => {
