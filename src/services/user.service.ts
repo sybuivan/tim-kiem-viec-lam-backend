@@ -79,9 +79,72 @@ const userService = {
 
     await findUserByid(id_user);
 
+    let fileCV = '';
+    let fileNameCV = '';
+    if (fileName) {
+      fileCV = `http://localhost:5000/${fileName}`;
+      fileNameCV = file_name;
+    }
+
+    const id_profile = uniqid();
+
+    const rows: any = await queryDb(
+      'insert into profile_cv(id_profile,id_city,created_at,file_name,file_cv,id_company_field,career_goals, id_experience,desired_salary,id_type_current,id_type_desired,id_user,is_public,id_working_form) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      [
+        id_profile,
+        id_city,
+        created_at,
+        fileNameCV,
+        fileCV,
+        id_company_field,
+        career_goals,
+        id_experience,
+        desired_salary,
+        id_type_current,
+        id_type_desired,
+        id_user,
+        is_public,
+        id_working_form,
+      ]
+    );
+    if (rows.insertId >= 0) {
+      const profile_cv: any = await queryDb(
+        'select * from profile_cv where id_user=? and id_profile=?',
+        [id_user, id_profile]
+      );
+
+      return {
+        profile_cv: profile_cv[0],
+      };
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Thêm profile cv không thành công'
+      );
+    }
+  },
+  updateCV: async (body: IPayLoadCV, fileName?: string) => {
+    const {
+      career_goals,
+      id_experience,
+      desired_salary,
+      id_type_current,
+      id_type_desired,
+      id_user,
+      is_public,
+      id_working_form,
+      id_company_field,
+      file_name,
+      id_city,
+      created_at = new Date(),
+      id_profile,
+    } = body;
+
+    await findUserByid(id_user);
+
     const user: any = await queryDb(
-      'select * from profile_cv where id_user=?',
-      [id_user]
+      'select * from profile_cv where id_user=? and id_profile=?',
+      [id_user, id_profile]
     );
     let fileCV = '';
     let fileNameCV = '';
@@ -90,76 +153,41 @@ const userService = {
       fileNameCV = file_name;
     } else {
       fileCV = user[0].file_cv;
-      fileCV = user[0].file_name;
+      fileNameCV = user[0].file_name;
     }
-    if (_.isEmpty(user)) {
-      const rows: any = await queryDb(
-        'insert into profile_cv(id_city,created_at,file_name,file_cv,id_company_field,career_goals, id_experience,desired_salary,id_type_current,id_type_desired,id_user,is_public,id_working_form) values(?,?,?,?,?,?,?,?,?,?,?,?,?)',
-        [
-          id_city,
-          created_at,
-          file_name,
-          fileCV,
-          id_company_field,
-          career_goals,
-          id_experience,
-          desired_salary,
-          id_type_current,
-          id_type_desired,
-          id_user,
-          is_public,
-          id_working_form,
-        ]
-      );
-      if (rows.insertId >= 0) {
-        const profile_cv: any = await queryDb(
-          'select * from profile_cv where id_user=?',
-          [id_user]
-        );
 
-        return {
-          profile_cv: profile_cv[0],
-        };
-      } else {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          'Thêm profile cv không thành công'
-        );
-      }
+    const rows: any = await queryDb(
+      'UPDATE profile_cv set id_city=?, created_at=?,file_name=?,file_cv=?,id_company_field=?,career_goals=?, id_experience=?,desired_salary=?,id_type_current=?,id_type_desired=?,is_public=?,id_working_form=? where id_profile=?',
+      [
+        id_city,
+        created_at,
+        fileNameCV,
+        fileCV,
+        id_company_field,
+        career_goals,
+        id_experience,
+        desired_salary,
+        id_type_current,
+        id_type_desired,
+        is_public,
+        id_working_form,
+        id_profile,
+      ]
+    );
+    if (rows.insertId >= 0) {
+      const profile_cv: any = await queryDb(
+        'select * from profile_cv where id_user=? and id_profile=?',
+        [id_user, id_profile]
+      );
+
+      return {
+        profile_cv: profile_cv[0],
+      };
     } else {
-      const rows: any = await queryDb(
-        'UPDATE profile_cv set id_city=?, created_at=?,file_name=?,file_cv=?,id_company_field=?,career_goals=?, id_experience=?,desired_salary=?,id_type_current=?,id_type_desired=?,is_public=?,id_working_form=? where id_user=?',
-        [
-          id_city,
-          created_at,
-          file_name,
-          fileCV,
-          id_company_field,
-          career_goals,
-          id_experience,
-          desired_salary,
-          id_type_current,
-          id_type_desired,
-          is_public,
-          id_working_form,
-          id_user,
-        ]
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Cập nhật profile cv không thành công'
       );
-      if (rows.insertId >= 0) {
-        const profile_cv: any = await queryDb(
-          'select * from profile_cv where id_user=?',
-          [id_user]
-        );
-
-        return {
-          profile_cv: profile_cv[0],
-        };
-      } else {
-        throw new ApiError(
-          httpStatus.BAD_REQUEST,
-          'Thêm profile cv không thành công'
-        );
-      }
     }
   },
 
@@ -174,7 +202,7 @@ const userService = {
       };
 
     return {
-      profile_cv: profile_cv[0],
+      profile_cv,
     };
   },
 

@@ -19,6 +19,14 @@ router.post(
   uploadFile.single('file_cv'),
   userController.createCV
 );
+
+router.put(
+  '/update-profile-cv',
+  // validate(userValidation.createProfileCV),
+  uploadFile.single('file_cv'),
+  userController.updateCV
+);
+
 router.get('/get-profile-cv/:id_user', userController.getProfileCV);
 router.post(
   '/add-follow',

@@ -53,6 +53,27 @@ const userController = {
       }
     }
   ),
+  updateCV: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const isFile = (req as MulterRequest)?.file;
+      if (!isFile) {
+        const { profile_cv } = await userService.updateCV(req.body);
+        if (profile_cv) {
+          res.status(httpStatus.OK).send({
+            profile_cv,
+          });
+        }
+      } else {
+        const { filename } = (req as MulterRequest)?.file;
+        const { profile_cv } = await userService.updateCV(req.body, filename);
+        if (profile_cv) {
+          res.status(httpStatus.OK).send({
+            profile_cv,
+          });
+        }
+      }
+    }
+  ),
   getProfileCV: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { profile_cv } = await userService.getProfileCV(req.params.id_user);

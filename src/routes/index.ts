@@ -6,6 +6,7 @@ import applyRoute from './apply.route';
 import commonRoute from './common.route';
 import chatRoute from './chat.route';
 import serviceRoute from './buyService.route';
+import adminRoute from './admin.route';
 
 import express from 'express';
 
@@ -43,6 +44,14 @@ const defaultRoutes = [
   {
     path: '/service',
     route: serviceRoute,
+  },
+  {
+    path: '/service',
+    route: serviceRoute,
+  },
+  {
+    path: '/admin',
+    route: adminRoute,
   },
 ];
 

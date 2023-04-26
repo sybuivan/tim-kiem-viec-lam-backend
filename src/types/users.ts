@@ -23,4 +23,5 @@ export interface IPayLoadCV {
   id_company_field: string;
   file_name: string;
   created_at: Date | string;
+  id_profile?: string;
 }
