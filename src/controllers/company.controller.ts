@@ -163,6 +163,14 @@ const companyController = {
       res.status(httpStatus.OK).send(id_user);
     }
   ),
+  getCandidateDetail: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const user_detail = await companyService.getCandidateDetail(
+        req.params.id_user
+      );
+      res.status(httpStatus.OK).send(user_detail);
+    }
+  ),
   getAllFollowUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { followers, total } = await companyService.getAllFollowUser(

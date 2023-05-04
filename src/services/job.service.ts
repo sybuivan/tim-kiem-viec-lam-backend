@@ -94,8 +94,10 @@ const jobService = {
       );
 
     const rows: any = await queryDb(
-      'UPDATE job set deadline = ?, description_job= ?, city=?, id_experience= ?, id_field= ?, id_range= ?, id_type=?,name_job=?,required_job=?, size_number=?,work_location=? where id_job = ?',
+      'UPDATE job set id_working_form=?, benefits_job=?,deadline = ?, description_job= ?, city=?, id_experience= ?, id_field= ?, id_range= ?, id_type=?,name_job=?,required_job=?, size_number=?,work_location=? where id_job = ?',
       [
+        id_working_form,
+        benefits_job,
         deadline,
         description_job,
         city,
@@ -178,7 +180,6 @@ const jobService = {
       [id_job, id_range, work_location, id_field]
     );
 
-    console.log({ job_suggets, name_job, id_range });
     return {
       job: orther,
       job_suggets,
@@ -248,7 +249,8 @@ const jobService = {
 
     if (_.isEmpty(queryParams)) {
       const rows: any = await queryDb(
-        'select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE()',
+        `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city 
+        where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE()`,
         []
       );
       return {
@@ -263,12 +265,13 @@ const jobService = {
     const sqlId_range = id_range && `and job.id_range = '${id_range}'`;
     const sql_id_experience =
       id_experience && `and job.id_experience = '${id_experience}'`;
-    const sql_id_rank = id_rank && `and job.id_rank = '${id_rank}'`;
+    const sql_id_rank = id_rank && `and job.id_type = '${id_rank}'`;
     const sql_limit =
       page == 1 ? `LIMIT 0,${LIMIT}` : `LIMIT ${(page - 1) * LIMIT},${LIMIT}`;
 
     const rows: any = await queryDb(
-      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
+      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo from job, company, rangewage, city 
+      where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
       []
     );
 
@@ -277,7 +280,6 @@ const jobService = {
       []
     );
 
-    console.log({ rowsList: rowsList.length });
     return {
       data: rows,
       total: rowsList.length,

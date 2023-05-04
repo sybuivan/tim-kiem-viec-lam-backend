@@ -9,7 +9,7 @@ import {
   TActiveStatues,
 } from '../types/company';
 import { IPayloadLogin, TROLE } from '../types/common';
-import { findCompanyByid } from './common.service';
+import { findCompanyByid, findUserByid } from './common.service';
 import { IPayloadFollow } from '../types/users';
 
 var _ = require('lodash');
@@ -222,7 +222,7 @@ const companyService = {
     const sqlKeyword = keyword && `and users.fullName = '${keyword}' `;
 
     const rows: any = await queryDb(
-      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlCompanyfield}${sqlCity}${sqlKeyword}`,
+      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlCompanyfield}${sqlCity}${sqlKeyword} group by users.id_user`,
       []
     );
 
@@ -230,6 +230,38 @@ const companyService = {
       data: rows,
       total: rows.length,
     };
+  },
+
+  getCandidateDetail: async (id_user: string) => {
+    await findUserByid(id_user);
+
+    const user_info: any = await queryDb(
+      `select 
+      fullName,
+      email,
+      phone,
+      gender,
+      city,
+      birthDay,
+      address,
+      avatar,
+      id_type_current,
+      id_type_desired,
+      id_city,
+      desired_salary,
+      file_name,
+      career_goals,
+      file_cv,
+      id_company_field,
+      profile_cv.id_experience,
+      id_working_form 
+      from users, profile_cv 
+      WHERE users.id_role="user" 
+      and users.id_user = profile_cv.id_user
+      GROUP BY users.id_user`
+    );
+
+    return { user_info: user_info[0] };
   },
 
   followUser: async (body: IPayloadFollow) => {

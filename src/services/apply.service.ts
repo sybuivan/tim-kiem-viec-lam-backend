@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import { IApply } from '../types/apply';
 import { findJobById, findUserByid } from './common.service';
+import e from 'express';
 
 var _ = require('lodash');
 
@@ -15,6 +16,7 @@ const applyService = {
     const {
       id_user,
       id_job,
+      id_profile,
       created_at = new Date(),
       introducing_letter,
       status = 0,
@@ -34,7 +36,6 @@ const applyService = {
       );
 
     let cv_file = '';
-    console.log({ fileName });
     if (fileName) {
       cv_file = `http://localhost:5000/${fileName}`;
     } else {
@@ -48,29 +49,57 @@ const applyService = {
           'Xin lỗi. Profile CV còn trống'
         );
     }
+    if (id_profile) {
+      const rows: any = await queryDb(
+        `insert into apply(id_profile,file_cv,id_user,status,id_job, id_apply, created_at, introducing_letter) values(?,?,?,?,?,?,?,?)`,
+        [
+          id_profile,
+          cv_file,
+          id_user,
+          status,
+          id_job,
+          id_apply,
+          created_at,
+          introducing_letter,
+        ]
+      );
 
-    const rows: any = await queryDb(
-      'insert into apply(file_cv,id_user,status,id_job, id_apply, created_at, introducing_letter) values(?,?,?,?,?,?,?)',
-      [
-        cv_file,
-        id_user,
-        status,
-        id_job,
-        id_apply,
-        created_at,
-        introducing_letter,
-      ]
-    );
-
-    if (rows.insertId >= 0) {
-      const apply_cv = await queryDb('select * from apply where id_apply = ?', [
-        id_apply,
-      ]);
-      return {
-        apply_cv: apply_cv[0],
-      };
+      if (rows.insertId >= 0) {
+        const apply_cv = await queryDb(
+          'select * from apply where id_apply = ?',
+          [id_apply]
+        );
+        return {
+          apply_cv: apply_cv[0],
+        };
+      } else {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Nộp CV không thành công');
+      }
     } else {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Nộp CV không thành công');
+      const rows: any = await queryDb(
+        `insert into apply(file_cv,id_user,status,id_job, id_apply, created_at, introducing_letter) values(?,?,?,?,?,?,?)`,
+        [
+          cv_file,
+          id_user,
+          status,
+          id_job,
+          id_apply,
+          created_at,
+          introducing_letter,
+        ]
+      );
+
+      if (rows.insertId >= 0) {
+        const apply_cv = await queryDb(
+          'select * from apply where id_apply = ?',
+          [id_apply]
+        );
+        return {
+          apply_cv: apply_cv[0],
+        };
+      } else {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Nộp CV không thành công');
+      }
     }
   },
 

@@ -39,6 +39,11 @@ router.get(
   '/get-candidate-follow/:id_company',
   companyController.getAllFollowUser
 );
+router.get(
+  '/get-candidate-detail/:id_user',
+  companyController.getCandidateDetail
+);
+
 router.post(
   '/follow-user',
   validate(companyValidation.followUser),
