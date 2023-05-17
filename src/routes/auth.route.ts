@@ -1,5 +1,6 @@
 import express from 'express';
 import { authController } from '../controllers';
+import { isAuth } from '../middlewares/authencation';
 import validate from '../middlewares/validate';
 import authValidation from '../validations/auth.validation';
 const router = express.Router();
@@ -23,6 +24,11 @@ router.put(
   authController.updateUser
 );
 
-router.post('/get-me', validate(authValidation.getMe), authController.getMe);
+router.post(
+  '/get-me',
+  isAuth,
+  validate(authValidation.getMe),
+  authController.getMe
+);
 
 export default router;

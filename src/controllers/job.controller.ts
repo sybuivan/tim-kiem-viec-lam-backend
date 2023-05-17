@@ -9,6 +9,7 @@ import { catchAsync } from '../utils/catchAsync';
 interface QueryDelete {
   id_job: string;
   id_company: string;
+  is_lock: 0 | 1;
 }
 
 interface IQueryJob {
@@ -71,8 +72,9 @@ const jobController = {
 
   deleteJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { id_job, id_company } = req.query as unknown as QueryDelete;
-      await jobService.deleteJob({ id_job, id_company });
+      const { id_job, id_company, is_lock } =
+        req.query as unknown as QueryDelete;
+      await jobService.deleteJob({ id_job, id_company, is_lock });
       res.status(httpStatus.OK).send({
         message: 'Xóa thành công',
       });
@@ -118,8 +120,7 @@ const jobController = {
   ),
   getListJob: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const urgent_recruitment = 1;
-      const { data, total } = await jobService.getListJob(urgent_recruitment);
+      const { data, total } = await jobService.getListJob();
       if (data) {
         res.status(httpStatus.OK).send({
           data,
@@ -138,6 +139,17 @@ const jobController = {
         res.status(httpStatus.OK).send({
           data,
           total,
+        });
+      }
+    }
+  ),
+
+  getTopJob: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { data } = await jobService.getTopJob();
+      if (data) {
+        res.status(httpStatus.OK).send({
+          data,
         });
       }
     }

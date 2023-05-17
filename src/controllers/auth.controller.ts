@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
-import { authService, tokenService } from '../services';
+import { authService } from '../services';
 import { IUser } from '../types/auth';
 import { catchAsync } from '../utils/catchAsync';
 import userService from '../services/user.service';
 import jobService from '../services/job.service';
 import notificationService from '../services/notification.service';
+import { generateToken } from '../middlewares/JWT';
 
 const authController = {
   getMe: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +20,7 @@ const authController = {
     const { users } = await authService.getMe(email, id_role);
 
     if (users) {
-      const { accessToken } = tokenService.generateToken(users);
+      const { accessToken } = generateToken(users);
       const { profile_cv } = await userService.getProfileCV(users.id_user);
       const { followers, total_follow } = await userService.getAllFollowUser(
         users.id_user
@@ -61,7 +62,7 @@ const authController = {
     );
 
     if (users) {
-      const { accessToken } = tokenService.generateToken(users);
+      const { accessToken } = generateToken(users);
       const { profile_cv } = await userService.getProfileCV(users.id_user);
       const { followers, total_follow } = await userService.getAllFollowUser(
         users.id_user
@@ -104,7 +105,7 @@ const authController = {
       );
 
       if (users) {
-        const { accessToken } = tokenService.generateToken(users);
+        const { accessToken } = generateToken(users);
 
         res.send({
           users,

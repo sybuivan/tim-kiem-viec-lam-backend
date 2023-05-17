@@ -4,6 +4,7 @@ export const jobValidation = {
   createJob: {
     body: Joi.object().keys({
       id_field: Joi.string().required(),
+      id_history: Joi.string().required(),
       id_type: Joi.string().required(),
       id_range: Joi.string().required(),
       city: Joi.string().required(),
@@ -16,7 +17,6 @@ export const jobValidation = {
       benefits_job: Joi.string().required(),
       required_job: Joi.string().required(),
       work_location: Joi.string().required(),
-      urgent_recruitment: Joi.number().required(),
     }),
   },
   updateJob: {
@@ -35,7 +35,10 @@ export const jobValidation = {
       description_job: Joi.string().required(),
       benefits_job: Joi.string().required(),
       required_job: Joi.string().required(),
-      work_location: Joi.string().required(),
+      work_location: Joi.string().required(), 
+      is_lock: Joi.number().valid(0, 1).required(),     
+      id_history: Joi.string().required(),
+
     }),
     params: Joi.object().keys({
       id_job: Joi.string().required(),
@@ -46,6 +49,7 @@ export const jobValidation = {
     query: Joi.object().keys({
       id_job: Joi.string().required(),
       id_company: Joi.string().required(),
+      is_lock: Joi.number().valid(0, 1).required(),
     }),
   },
 };

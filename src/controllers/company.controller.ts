@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
 import { io, sockets } from '..';
-import { tokenService } from '../services';
+import { generateToken } from '../middlewares/JWT';
 import companyService from '../services/company.service';
 import notificationService from '../services/notification.service';
 import { IUser } from '../types/auth';
@@ -21,6 +21,7 @@ interface IQueryCandidate {
 interface IQueryApplied {
   id_company: string;
   id_job: string;
+  status_job: string;
 }
 
 const companyController = {
@@ -32,7 +33,7 @@ const companyController = {
     });
 
     if (users) {
-      const { accessToken } = tokenService.generateToken(users);
+      const { accessToken } = generateToken(users);
 
       res.send({
         users,
@@ -227,6 +228,17 @@ const companyController = {
           users,
         });
       }
+    }
+  ),
+  getServiceActivated: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { service } = await companyService.getServiceActivated(
+        req.params.id_company
+      );
+
+      res.status(httpStatus.OK).send({
+        service,
+      });
     }
   ),
 };

@@ -13,6 +13,12 @@ const adminValidation = {
       is_lock: Joi.number().valid(1, 0).required(),
     }),
   },
+  updateActiveStatus: {
+    body: Joi.object().keys({
+      id_user: Joi.string().required(),
+      active_status: Joi.number().valid(1, 0).required(),
+    }),
+  },
 };
 
 export default adminValidation;

@@ -34,6 +34,38 @@ const adminController = {
       res.status(httpStatus.OK).send(id_user);
     }
   ),
+  getCompanyRegisterList: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { company_list, total } =
+        await adminService.getCompanyRegisterList();
+      if (company_list) res.status(httpStatus.OK).send({ company_list, total });
+    }
+  ),
+  updateActiveCompany: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id_company = await adminService.updateActiveCompany(req.body);
+      if (id_company) res.status(httpStatus.OK).send(id_company);
+    }
+  ),
+  statistical: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const {
+        jobs_by_industry,
+        users_by_industry,
+        city_by_industry,
+        total_revenue,
+        total_data_month,
+      } = await adminService.statistical();
+      if (jobs_by_industry)
+        res.status(httpStatus.OK).send({
+          jobs_by_industry,
+          users_by_industry,
+          city_by_industry,
+          total_revenue,
+          total_data_month,
+        });
+    }
+  ),
 };
 
 export default adminController;

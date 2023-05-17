@@ -21,7 +21,15 @@ const authService = {
         httpStatus.BAD_REQUEST,
         'Không tìm thấy tài khoản người dùng'
       );
-
+    const lock: any = await queryDb(
+      'select * from users where email=? and id_role=? and is_lock = 1',
+      [email, id_role]
+    );
+    if (!_.isEmpty(lock))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Tài khoản của bạn đã bị khóa'
+      );
     const { password, ...orther } = users[0];
 
     return {
@@ -39,6 +47,17 @@ const authService = {
         httpStatus.BAD_REQUEST,
         'Không tìm thấy tài khoản người dùng'
       );
+
+    const lock: any = await queryDb(
+      'select * from users where email=? and id_role=? and is_lock = 1',
+      [email, id_role]
+    );
+    if (!_.isEmpty(lock))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Tài khoản của bạn đã bị khóa'
+      );
+
     const match = await bcrypt.compare(
       password,
       String(user[0].password).trim()

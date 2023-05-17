@@ -11,6 +11,7 @@ import {
 import { IPayloadLogin, TROLE } from '../types/common';
 import { findCompanyByid, findUserByid } from './common.service';
 import { IPayloadFollow } from '../types/users';
+import mailerService from './mailer.service';
 
 var _ = require('lodash');
 var bcrypt = require('bcrypt');
@@ -31,6 +32,19 @@ const companyService = {
         httpStatus.BAD_REQUEST,
         'Không tìm thấy tài khoản người dùng'
       );
+
+    const company: any = await queryDb(
+      'select * from users, company where users.id_user = company.id_company and active_status = 1 and email=?',
+      [email]
+    );
+
+
+    if (_.isEmpty(company))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Tài khoản người dùng chưa được xác nhận'
+      );
+
     const match = await bcrypt.compare(
       password,
       String(user[0].password).trim()
@@ -66,26 +80,25 @@ const companyService = {
     const id_role = 'company';
     const id_company = uniqid();
     const user: any = await queryDb(
-      'select * from users where email=? and id_role=?',
-      [email, id_role]
+      'select * from users,company where users.id_user = company.id_company and id_role=? and (email=? or company.faxCode=?)',
+      [id_role, email, faxCode]
     );
     if (!_.isEmpty(user))
       throw new ApiError(httpStatus.BAD_REQUEST, 'Tài khoản đã tồn tại');
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
     const result: any = await queryDb(
-      'insert into users(email, fullName, password, id_role, id_user) values(?,?,?,?,?)',
-      [email, fullName, hashPassword, id_role, id_company]
+      'insert into users(email, fullName, password, id_role, id_user, phone) values(?,?,?,?,?,?)',
+      [email, fullName, hashPassword, id_role, id_company, phone]
     );
 
     const rows: any = await queryDb(
-      'insert into company(id_company,address,city,name_company,phone,total_people,faxCode,idCompanyField) values(?,?,?,?,?,?,?,?)',
+      'insert into company(id_company,address,city,name_company,total_people,faxCode,idCompanyField) values(?,?,?,?,?,?,?)',
       [
         id_company,
         address,
         city,
         name_company,
-        phone,
         total_people,
         faxCode,
         fieldOfActivity,
@@ -134,15 +147,16 @@ const companyService = {
       logoFile = company[0].logo;
     }
 
-    if (fullName) {
+    if (fullName || phone) {
+      console.log({ phone });
       const user: any = await queryDb(
-        'update users set fullName=? where id_user=?',
-        [fullName, id_company]
+        'update users set fullName=? , phone=? where id_user=?',
+        [fullName, phone, id_company]
       );
     }
 
     const rows: any = await queryDb(
-      'UPDATE company set cover_image=?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, phone=?, faxCode=? where id_company = ?',
+      'UPDATE company set cover_image=?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, faxCode=? where id_company = ?',
       [
         coverImage,
         address,
@@ -155,7 +169,6 @@ const companyService = {
         link_website,
         idCompanyField,
         city,
-        phone,
         faxCode,
         id_company,
       ]
@@ -184,7 +197,11 @@ const companyService = {
     );
 
     const jobs: any = await queryDb(
-      'select id_job,name_range,name_job,work_location,deadline from job, rangewage where rangewage.id_range = job.id_range and id_company=? and deadline > CURDATE()',
+      `select id_job,name_range,name_job,work_location,deadline
+      from job, rangewage where rangewage.id_range = job.id_range 
+      and id_company=? and deadline > CURDATE()
+      and is_lock <> 1
+      `,
       [id_company]
     );
 
@@ -199,7 +216,12 @@ const companyService = {
   getCompanyList: async () => {
     const active_status: TActiveStatues = 1;
     const companyList: any = await queryDb(
-      'SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob from job, company WHERE job.id_company = company.id_company and company.active_status=? and deadline > CURDATE() GROUP BY company.id_company',
+      `SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob 
+      from job, company
+      WHERE job.id_company = company.id_company 
+      and job.is_lock <> 1
+      and company.active_status=? and deadline > CURDATE() 
+      GROUP BY company.id_company`,
       [active_status]
     );
 
@@ -282,8 +304,16 @@ const companyService = {
     );
     if (rows.insertId >= 0) {
       const rows: any = await queryDb(
-        'select fullName,phone,users.id_user,email,name_field,file_name,file_cv,avatar from users,companyfield, profile_cv,follow where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 and id_company=?',
-        [id_company]
+        `select fullName,phone,users.id_user,email,name_field,file_name,file_cv,avatar 
+        from users,companyfield, profile_cv,follow
+        where profile_cv.id_company_field=companyfield.id_companyField 
+        and users.id_user = profile_cv.id_user 
+        and is_public = 1 
+        AND users.id_user = profile_cv.id_user
+        and follow.id_user = users.id_user
+        and id_company=?
+        AND type_role =?`,
+        [id_company, type_role]
       );
 
       return {
@@ -335,7 +365,15 @@ const companyService = {
       };
 
     const rows: any = await queryDb(
-      'select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv, follow where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 and id_company=? and type_role=?',
+      `select fullName,phone,users.id_user,email,name_field,file_name,file_cv,avatar 
+      from users,companyfield, profile_cv,follow
+      where profile_cv.id_company_field=companyfield.id_companyField 
+      and users.id_user = profile_cv.id_user 
+      and is_public = 1 
+      AND users.id_user = profile_cv.id_user
+      and follow.id_user = users.id_user
+      and id_company=?
+      AND type_role =?`,
       [id_company, type_role]
     );
 
@@ -399,15 +437,26 @@ const companyService = {
   getProfileAppliedByJob: async ({
     id_company,
     id_job,
+    status_job,
   }: {
     id_company: string;
     id_job: string;
+    status_job: string;
   }) => {
     const { company } = await findCompanyByid(id_company);
     const sqlId_job = id_job && `and apply.id_job ='${id_job}'`;
+    const sqlStatus_job = status_job && `and apply.status=${status_job}`;
 
     const rows: any = await queryDb(
-      `select name_job,avatar, job.id_job,id_apply,deadline,file_cv,users.id_user, apply.created_at, users.fullName, birthDay, name_rank, status from typerank, users,job, apply, company where  job.id_type = typerank.id_rank and  users.id_user = apply.id_user and job.id_company and company.id_company and apply.id_job = job.id_job and job.id_company=? ${sqlId_job}`,
+      `select name_job,avatar, job.id_job,id_apply,deadline,file_cv,users.id_user, apply.created_at, users.fullName, 
+      birthDay, name_rank, status,introducing_letter,users.email
+      from typerank, users,job, apply, company 
+      where  
+      job.id_type = typerank.id_rank and  
+      users.id_user = apply.id_user 
+      and apply.id_job = job.id_job 
+      and job.id_company = company.id_company
+      and job.id_company=? ${sqlId_job} ${sqlStatus_job}`,
       [id_company]
     );
 
@@ -418,12 +467,27 @@ const companyService = {
   },
 
   updateStatusApplied: async (
-    listApply: { id_apply: string; status: number; id_user: string }[]
+    listApply: {
+      id_apply: string;
+      status: number;
+      id_user: string;
+      email: string;
+      messageMailer: string;
+      name_job: string;
+      fullName: string;
+    }[]
   ) => {
     for (let i = 0; i < listApply.length; i++) {
       const rows: any = await queryDb('select * from apply where id_apply=?', [
         listApply[i].id_apply,
       ]);
+
+      await mailerService.sendSimpleEmail({
+        email: listApply[i].email,
+        messageMailer: listApply[i].messageMailer,
+        name_job: listApply[i].name_job,
+        fullName: listApply[i].fullName,
+      });
 
       if (rows.length > 0) {
         const result: any = await queryDb(
@@ -440,6 +504,29 @@ const companyService = {
     const users = listApply.map((item) => item.id_user);
     return {
       users,
+    };
+  },
+
+  getServiceActivated: async (id_company: string) => {
+    const { company } = await findCompanyByid(id_company);
+
+    const activated: number = 1;
+    const rows: any = await queryDb(
+      `SELECT service_history.id_history, name_service, (total_news - COALESCE(used_news, 0)) AS remaining_news,created_at,expiry
+      FROM service_history
+      INNER JOIN service ON service_history.id_service = service.id_service
+      LEFT JOIN (
+        SELECT id_history, COUNT(id_history) AS used_news
+        FROM job
+        GROUP BY id_history
+      ) AS used ON service_history.id_history = used.id_history
+      WHERE service_history.id_company = ?
+        AND service_history.activated = ?`,
+      [id_company, activated]
+    );
+
+    return {
+      service: rows,
     };
   },
 };

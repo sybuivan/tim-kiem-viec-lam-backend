@@ -8,4 +8,10 @@ export const serviceValidation = {
       id_service: Joi.string().required(),
     }),
   },
+  activatedService: {
+    body: Joi.object().keys({
+      id_company: Joi.string().required(),
+      id_history: Joi.string().required(),
+    }),
+  },
 };

@@ -141,7 +141,8 @@ const chatService = {
       };
     } else {
       const room: any = await queryDb(
-        'select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_company from room, company where company.id_company = room.id_company and id_room=?',
+        `select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_user from room, company 
+        where company.id_company = room.id_company and id_room=?`,
         [id_room]
       );
       return {

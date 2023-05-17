@@ -61,6 +61,93 @@ const adminService = {
       return id_user;
     }
   },
+  getCompanyRegisterList: async () => {
+    const id_role = 'company';
+    const rows: any = await queryDb(
+      `SELECT * FROM company
+       JOIN users ON users.id_user = company.id_company and id_role =?
+       JOIN companyField ON company.idCompanyField  = companyField.id_companyField
+       WHERE company.active_status = 0;
+    `,
+      [id_role]
+    );
+
+    return {
+      company_list: rows,
+      total: rows.length,
+    };
+  },
+
+  updateActiveCompany: async (body: {
+    id_user: string;
+    active_status: string;
+  }) => {
+    const { id_user, active_status } = body;
+    const id_role = 'company';
+    const company: any = await queryDb(
+      'select * from users where id_user=? and id_role=?',
+      [id_user, id_role]
+    );
+
+    if (_.isEmpty(company))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Không tìm thấy tài khoản người dùng'
+      );
+
+    const rows: any = await queryDb(
+      'update company set active_status=? where id_company=?',
+      [active_status, id_user]
+    );
+
+    return id_user;
+  },
+
+  statistical: async () => {
+    const jobs_by_industry: any = await queryDb(`
+    SELECT companyField.name_field, COUNT(*) AS job_count
+    FROM job
+    INNER JOIN companyField ON job.id_field = companyField.id_companyField
+    GROUP BY id_field;
+    `);
+
+    const users_by_industry: any =
+      await queryDb(`SELECT roleuser.name_role, COUNT(*) AS user_count
+      FROM users
+      INNER JOIN roleuser ON users.id_role = roleuser.id_role
+      GROUP BY users.id_role;`);
+
+    const city_by_industry: any =
+      await queryDb(`SELECT city.name_city, COUNT(*) AS city_count
+      FROM job
+      INNER JOIN city ON city.id_city = job.city
+      GROUP BY job.city;
+      `);
+    const total_revenue: any =
+      await queryDb(`SELECT SUM(s.price) AS total_revenue
+      FROM service_history sh
+      INNER JOIN service s ON sh.id_service = s.id_service;
+      `);
+
+    const total_data_month: any = await queryDb(`SELECT
+      CONCAT('Tháng ', MONTH(sh.created_at)) AS month,
+      SUM(s.price) AS total_revenue
+      FROM
+        service_history sh
+        INNER JOIN service s ON sh.id_service = s.id_service
+      WHERE
+        MONTH(sh.created_at) BETWEEN 1 AND 12
+        GROUP BY MONTH(sh.created_at);
+    `);
+
+    return {
+      jobs_by_industry,
+      users_by_industry,
+      city_by_industry,
+      total_revenue: total_revenue[0].total_revenue,
+      total_data_month,
+    };
+  },
 };
 
 export default adminService;

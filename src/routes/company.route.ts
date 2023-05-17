@@ -1,6 +1,7 @@
 import express from 'express';
 import { authController } from '../controllers';
 import companyController from '../controllers/company.controller';
+import { isAuth } from '../middlewares/authencation';
 import { upload } from '../middlewares/upload';
 import validate from '../middlewares/validate';
 import companyValidation from '../validations/company.validation';
@@ -19,6 +20,7 @@ router.post(
 
 router.put(
   '/update-profile/:id_company',
+  isAuth,
   upload.fields([
     {
       name: 'logo',
@@ -60,5 +62,9 @@ router.get(
 );
 router.get('/get-applied-by-company', companyController.getProfileAppliedByJob);
 router.post('/update-status-applied', companyController.updateStatusApplied);
+router.get(
+  '/get-service-activated/:id_company',
+  companyController.getServiceActivated
+);
 
 export default router;

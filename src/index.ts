@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import routes from './routes';
 import { errorConverter, errorHandler } from './middlewares/error';
 const puppeteer = require('puppeteer');
+const path = require('path');
 
 dotenv.config();
 
@@ -14,8 +15,26 @@ export const sockets: any = {};
 const app: Express = express();
 
 // config path images
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+  })
+);
+
+app.get('/', (req, res) => {
+  const filePath = path.join(
+    __dirname,
+    '..',
+    'public',
+    '1683953800058CNTT_7480201_CN19.pdf'
+  );
+
+  res.header('Access-Control-Allow-Origin', '*');
+  res.sendFile(filePath);
+});
+
 app.use('/', express.static('public'));
-app.use(cors());
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(bodyParser.json());

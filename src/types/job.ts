@@ -1,5 +1,6 @@
 export interface IJob {
   id_job?: string;
+  id_history: string;
   id_company: string;
   city: string;
   id_field: string;

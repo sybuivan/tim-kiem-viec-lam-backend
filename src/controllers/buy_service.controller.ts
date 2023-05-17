@@ -27,6 +27,12 @@ const buy_serviceController = {
       return res.status(httpStatus.OK).send({ message: 'thanh cong' });
     }
   ),
+  activatedService: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id_history = await buy_service.activatedService(req.body);
+      if (id_history) return res.status(httpStatus.OK).send(id_history);
+    }
+  ),
 };
 
 export default buy_serviceController;
