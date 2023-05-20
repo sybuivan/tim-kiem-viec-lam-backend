@@ -191,6 +191,33 @@ const userService = {
     }
   },
 
+  updateIsPublicCV: async (body: IPayLoadCV) => {
+    const { id_profile, id_user, is_public } = body;
+
+    await findUserByid(id_user);
+
+    const user: any = await queryDb(
+      'select * from profile_cv where id_user=? and id_profile=?',
+      [id_user, id_profile]
+    );
+
+    const rows: any = await queryDb(
+      'UPDATE profile_cv set is_public =? where id_profile=?',
+      [is_public, id_profile]
+    );
+    if (rows.insertId >= 0) {
+      return {
+        id_profile,
+        is_public,
+      };
+    } else {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Cập nhật profile cv không thành công'
+      );
+    }
+  },
+
   getProfileCV: async (id_user: string) => {
     const profile_cv: any = await queryDb(
       'select * from profile_cv where id_user=?',
@@ -203,6 +230,18 @@ const userService = {
 
     return {
       profile_cv,
+    };
+  },
+  getProfileCVById: async (id_profile: string) => {
+    const profile_cv: any = await queryDb(
+      'select * from profile_cv where id_profile=?',
+      [id_profile]
+    );
+    if (_.isEmpty(profile_cv))
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Không tìm thấy profile CV');
+
+    return {
+      profile_cv: profile_cv[0],
     };
   },
 
@@ -280,7 +319,13 @@ const userService = {
       };
 
     const rows: any = await queryDb(
-      'select name_company,total_people,company.id_company, follow.created_at,logo from users, follow, company where users.id_user = follow.id_user and follow.id_company = company.id_company and users.id_user=? and follow.type_role=?',
+      `select name_company,total_people,company.id_company, follow.created_at,logo,COUNT(job.id_job) as total 
+      from users, follow, company, job 
+      where users.id_user = follow.id_user
+      and follow.id_company = company.id_company
+      and job.id_company = company.id_company
+      and users.id_user=? and follow.type_role=?
+      GROUP BY company.name_company`,
       [id_user, type_role]
     );
 

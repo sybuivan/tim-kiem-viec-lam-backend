@@ -29,7 +29,16 @@ router.put(
   userController.updateCV
 );
 
+router.put('/update-is-public', isAuth, userController.updateIsPublicCV);
+
 router.get('/get-profile-cv/:id_user', isAuth, userController.getProfileCV);
+
+router.get(
+  '/get-cv-by-id/:id_profile',
+  isAuth,
+  userController.getProfileCVById
+);
+
 router.post(
   '/add-follow',
   isAuth,

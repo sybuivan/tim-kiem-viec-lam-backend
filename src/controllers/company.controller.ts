@@ -166,10 +166,10 @@ const companyController = {
   ),
   getCandidateDetail: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const user_detail = await companyService.getCandidateDetail(
+      const { user_info, profileCV } = await companyService.getCandidateDetail(
         req.params.id_user
       );
-      res.status(httpStatus.OK).send(user_detail);
+      res.status(httpStatus.OK).send({ user_info, profileCV });
     }
   ),
   getAllFollowUser: catchAsync(

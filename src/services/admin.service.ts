@@ -102,6 +102,51 @@ const adminService = {
 
     return id_user;
   },
+  settingCommon: async (body: { type: string; id: string; name: string }) => {
+    const { type, name, id } = body;
+    switch (type) {
+      case 'companyfield': {
+        const item: any = await queryDb(
+          'select * from companyfield where id_companyField=? and name_field=?',
+          [id, name]
+        );
+        if (!_.isEmpty(item))
+          throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            'Mã nghề nghiệp đã tồn tại'
+          );
+
+        const rows: any = await queryDb(
+          'insert into companyfield(id_companyField,name_field) values(?,?)',
+          [id, name]
+        );
+        return;
+        break;
+      }
+      case 'rangewage': {
+        const item: any = await queryDb(
+          'select * from rangewage where id_range=? and name_range=?',
+          [id, name]
+        );
+        if (!_.isEmpty(item))
+          throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            'Mã nghề nghiệp đã tồn tại'
+          );
+
+        const rows: any = await queryDb(
+          'insert into rangewage(id_range,name_range) values(?,?)',
+          [id, name]
+        );
+        return;
+        break;
+      }
+
+      default:
+        return;
+        break;
+    }
+  },
 
   statistical: async () => {
     const jobs_by_industry: any = await queryDb(`

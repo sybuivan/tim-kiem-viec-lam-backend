@@ -66,6 +66,12 @@ const adminController = {
         });
     }
   ),
+  settingCommon: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      await adminService.settingCommon(req.body);
+      res.status(httpStatus.OK).send('Thành công');
+    }
+  ),
 };
 
 export default adminController;

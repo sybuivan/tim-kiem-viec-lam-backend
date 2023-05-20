@@ -74,6 +74,19 @@ const userController = {
       }
     }
   ),
+  updateIsPublicCV: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id_profile, is_public } = await userService.updateIsPublicCV(
+        req.body
+      );
+      if (id_profile) {
+        res.status(httpStatus.OK).send({
+          id_profile,
+          is_public,
+        });
+      }
+    }
+  ),
   getProfileCV: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { profile_cv } = await userService.getProfileCV(req.params.id_user);
@@ -81,6 +94,17 @@ const userController = {
         res.status(httpStatus.OK).send({
           profile_cv,
         });
+      }
+    }
+  ),
+
+  getProfileCVById: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { profile_cv } = await userService.getProfileCVById(
+        req.params.id_profile
+      );
+      if (profile_cv) {
+        res.status(httpStatus.OK).send(profile_cv);
       }
     }
   ),

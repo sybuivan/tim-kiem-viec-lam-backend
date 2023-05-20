@@ -38,7 +38,6 @@ const companyService = {
       [email]
     );
 
-
     if (_.isEmpty(company))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -266,24 +265,18 @@ const companyService = {
       city,
       birthDay,
       address,
-      avatar,
-      id_type_current,
-      id_type_desired,
-      id_city,
-      desired_salary,
-      file_name,
-      career_goals,
-      file_cv,
-      id_company_field,
-      profile_cv.id_experience,
-      id_working_form 
-      from users, profile_cv 
-      WHERE users.id_role="user" 
-      and users.id_user = profile_cv.id_user
-      GROUP BY users.id_user`
+      avatar
+      from users
+      WHERE users.id_role="user" and id_user=?`,
+      [id_user]
+    );
+    const profileCV: any = await queryDb(
+      `select * from profile_cv
+      WHERE id_user=? and is_public=1`,
+      [id_user]
     );
 
-    return { user_info: user_info[0] };
+    return { user_info: user_info[0], profileCV };
   },
 
   followUser: async (body: IPayloadFollow) => {
@@ -377,17 +370,10 @@ const companyService = {
       [id_company, type_role]
     );
 
-    if (rows.length > 0) {
-      return {
-        followers: rows,
-        total: rows.length,
-      };
-    } else {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Lấy thông tin không thành công'
-      );
-    }
+    return {
+      followers: rows,
+      total: rows.length,
+    };
   },
 
   getAllFollowByMe: async (id_company: string) => {

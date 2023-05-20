@@ -31,4 +31,7 @@ router.put(
   adminController.updateActiveCompany
 );
 router.get('/statistical', adminController.statistical);
+
+router.post('/setting/common', adminController.settingCommon);
+
 export default router;
