@@ -72,6 +72,14 @@ const adminController = {
       res.status(httpStatus.OK).send('Thành công');
     }
   ),
+  getUserCompanyById: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { company } = await adminService.getUserCompanyById(
+        req.params.id_company
+      );
+      res.status(httpStatus.OK).send(company);
+    }
+  ),
 };
 
 export default adminController;

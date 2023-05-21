@@ -33,5 +33,9 @@ router.put(
 router.get('/statistical', adminController.statistical);
 
 router.post('/setting/common', adminController.settingCommon);
+router.get(
+  '/get-company-by-id/:id_company',
+  adminController.getUserCompanyById
+);
 
 export default router;

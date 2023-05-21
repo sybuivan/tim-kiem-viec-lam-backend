@@ -28,7 +28,9 @@ const authController = {
       const { savedList, total } = await userService.getAllSaveJob(
         users.id_user
       );
-      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou();
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou(
+        users.city
+      );
 
       const { notificationList, total_notification } =
         await notificationService.getNotification(users.id_user);
@@ -70,7 +72,9 @@ const authController = {
       const { savedList, total } = await userService.getAllSaveJob(
         users.id_user
       );
-      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou();
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou(
+        users.city
+      );
 
       const { notificationList, total_notification } =
         await notificationService.getNotification(users.id_user);

@@ -63,8 +63,8 @@ const buy_service = {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Không tìm thấy dịch vụ');
 
     const history_service: any = await queryDb(
-      'insert into service_history(id_company, id_history, id_service) values(?,?,?)',
-      [id_company, id_history, id_service]
+      'insert into service_history(id_company, id_history, id_service,activated) values(?,?,?,?)',
+      [id_company, id_history, id_service, 0]
     );
 
     if (history_service.insertId >= 0) {

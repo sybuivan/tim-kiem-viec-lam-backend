@@ -6,9 +6,10 @@ import queryDb from '../configs/db';
 import { IUser } from '../types/auth';
 import { IJob } from '../types/job';
 import ApiError from '../utils/ApiError';
+import { dataJobs } from '../utils/comon';
 import { findCompanyByid } from './common.service';
 
-const LIMIT = 20;
+const LIMIT = 40;
 
 const jobService = {
   createJob: async (body: IJob, id_company: string) => {
@@ -32,13 +33,12 @@ const jobService = {
     } = body;
 
     const rows: any = await queryDb(
-      `insert into job(id_history,id_working_form,benefits_job,city,created_at,deadline,description_job,id_experience,id_field,id_range,id_type,name_job,required_job,size_number,work_location,id_job,id_company) 
-      values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      `insert into job(id_history,id_working_form,benefits_job,created_at,deadline,description_job,id_experience,id_field,id_range,id_type,name_job,required_job,size_number,work_location,id_job,id_company) 
+      values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         id_history,
         id_working_form,
         benefits_job,
-        city,
         created_at,
         deadline,
         description_job,
@@ -58,7 +58,11 @@ const jobService = {
       const job: any = await queryDb('select * from job where id_job=?', [
         id_job,
       ]);
+      const query: string = `INSERT INTO citiesjob(id_job,id_city) VALUES ${city
+        .map((id) => `('${id_job}','${id}')`)
+        .join(',')};`;
 
+      await queryDb(query);
       return {
         job: job[0],
       };
@@ -97,13 +101,12 @@ const jobService = {
       );
 
     const rows: any = await queryDb(
-      'UPDATE job set id_working_form=?, benefits_job=?,deadline = ?, description_job= ?, city=?, id_experience= ?, id_field= ?, id_range= ?, id_type=?,name_job=?,required_job=?, size_number=?,work_location=? where id_job = ?',
+      'UPDATE job set id_working_form=?, benefits_job=?,deadline = ?, description_job= ?, id_experience= ?, id_field= ?, id_range= ?, id_type=?,name_job=?,required_job=?, size_number=?,work_location=? where id_job = ?',
       [
         id_working_form,
         benefits_job,
         deadline,
         description_job,
-        city,
         id_experience,
         id_field,
         id_range,
@@ -119,6 +122,14 @@ const jobService = {
       const job: any = await queryDb('select * from job where id_job=?', [
         id_job,
       ]);
+
+      await queryDb('delete from citiesjob where id_job=?', [id_job]);
+
+      const query: string = `INSERT INTO citiesjob(id_job,id_city) VALUES ${city
+        .map((id) => `('${id_job}','${id}')`)
+        .join(',')};`;
+
+      await queryDb(query);
       return {
         job: job[0],
       };
@@ -198,6 +209,13 @@ const jobService = {
       [id_job_params]
     );
 
+    const cities: any = await queryDb(
+      `
+      SELECT name_city from city, citiesjob where city.id_city = citiesjob.id_city and  citiesjob.id_job= ?
+    `,
+      [id_job_params]
+    );
+
     if (_.isEmpty(jobDeadline))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -209,18 +227,25 @@ const jobService = {
     const { name_job, id_job, id_range, work_location, id_field } = job[0];
 
     const job_suggets: any = await queryDb(
-      `SELECT job.id_job,logo,name_company,work_location, name_job, name_range, name_experience 
-      FROM job, company,rangewage,experience 
-      WHERE company.id_company = job.id_company and rangewage.id_range = job.id_range
+      `SELECT job.id_job,logo,name_company,work_location, name_job, name_range, name_experience,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency
+      FROM job, company,rangewage,experience,service, service_history  
+      WHERE company.id_company = job.id_company 
+      and rangewage.id_range = job.id_range
+      AND service.id_service = service_history.id_service 
+      AND job.id_history = service_history.id_history
       and experience.id_experience = job.id_experience and job.id_job <> ?
       and is_lock = 0
       AND deadline > NOW()
-      and (name_job LIKE '%${name_job}%' or job.id_range =? or work_location=? or id_field=?) limit 5`,
+      and (name_job LIKE '%${name_job}%' or job.id_range =? or work_location LIKE '%${work_location}%' or id_field=?) limit 5`,
       [id_job, id_range, work_location, id_field]
     );
 
     return {
-      job: orther,
+      job: { ...orther, cities },
       job_suggets,
     };
   },
@@ -228,6 +253,10 @@ const jobService = {
     const job: any = await queryDb('select * from job where id_job=?', [
       id_job,
     ]);
+    const citys: any = await queryDb(
+      'select city.id_city, name_city from citiesjob, city where citiesjob.id_city = city.id_city and  id_job=?',
+      [id_job]
+    );
     if (_.isEmpty(job))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -235,7 +264,7 @@ const jobService = {
       );
 
     return {
-      job: job[0],
+      job: { ...job[0], city: citys },
     };
   },
 
@@ -265,22 +294,29 @@ const jobService = {
     let sql = limit ? 'limit 9' : '';
 
     const rows: any = await queryDb(
-      `SELECT name_job, name_company, job.id_job, name_city, name_range, work_location, logo 
-      FROM city, job, company, rangewage, service, service_history 
-      WHERE city.id_city = job.city 
+      `SELECT name_job, name_company, job.id_job, name_city, name_range, work_location, logo,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency 
+      FROM city, job, company, rangewage, service, service_history,citiesjob 
+      WHERE city.id_city = citiesjob.id_city 
+        AND job.id_job = citiesjob.id_job
         AND job.id_company = company.id_company 
         AND job.id_range = rangewage.id_range
         AND service.id_service = service_history.id_service 
+        AND job.id_history = service_history.id_history
         AND DATE(deadline) > CURDATE()
         AND service.urgent_recruitment = 1
         AND is_lock = 0
-        AND job.id_history = service_history.id_history
-      GROUP BY job.id_job, name_job, name_company, name_city, name_range, work_location, logo ${sql}`,
+        ${sql}`,
       []
     );
 
+    const data = dataJobs(rows);
+
     return {
-      data: rows,
+      data,
       total: rows.length,
     };
   },
@@ -305,24 +341,33 @@ const jobService = {
     } = queryParams;
 
     if (_.isEmpty(queryParams)) {
-      console.log('ne');
       const rows: any = await queryDb(
         `select name_job, city.name_city, name_company, job.id_job, name_range,job.created_at,
-        job.deadline,DATEDIFF(deadline,created_at) AS days_left,
-        work_location, logo from job, company, rangewage, city 
-        where city.id_city = job.city and job.id_company = company.id_company
+        job.deadline,DATEDIFF(deadline,job.created_at) AS days_left,
+        CASE
+          WHEN service.urgent_recruitment = 1 THEN 1
+          ELSE 0
+        END AS urgency,
+        work_location, logo 
+        from job, company, rangewage, city,citiesjob,service, service_history 
+        where city.id_city = citiesjob.id_city 
+        and citiesjob.id_job = job.id_job
+        AND job.id_company = company.id_company
+        AND service.id_service = service_history.id_service 
+        AND job.id_history = service_history.id_history
         and job.is_lock = 0
         and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE()`,
         []
       );
+      const data = dataJobs(rows);
       return {
-        data: rows,
-        total: rows.length,
+        data,
+        total: data.length,
       };
     }
     const sqlCompanyfield =
       companyfield && `and job.id_field='${companyfield}'`;
-    const sqlCity = city && `and job.city = '${city}'`;
+    const sqlCity = city && `and citiesjob.id_city = '${city}'`;
     const sqlKeyword =
       keyword &&
       `and (job.name_job like '%${keyword}%' or company.name_company like '%${keyword}%')`;
@@ -334,49 +379,71 @@ const jobService = {
       page === 1 ? `LIMIT 0,${LIMIT}` : `LIMIT ${(page - 1) * LIMIT},${LIMIT}`;
 
     const rows: any = await queryDb(
-      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo, job.created_at, job.deadline,DATEDIFF(deadline,created_at) AS days_left
-      from job, company, rangewage, city 
-      where city.id_city = job.city and job.id_company = company.id_company 
-      and job.id_range = rangewage.id_range 
+      `select name_job, city.name_city, name_company, job.id_job, name_range,job.created_at,
+      job.deadline,DATEDIFF(deadline,job.created_at) AS days_left,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency,
+      work_location, logo 
+      from job, company, rangewage, city,citiesjob,service, service_history
+      where city.id_city = citiesjob.id_city
+      AND service.id_service = service_history.id_service 
+      AND job.id_history = service_history.id_history
+      and job.id_company = company.id_company
+      and job.id_job = citiesjob.id_job
       and job.is_lock = 0
-      and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} ${sql_limit}`,
+      and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} 
+      order by job.created_at desc ${sql_limit}`,
       []
     );
 
+    const data = dataJobs(rows);
+
     const rowsList: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo ,DATEDIFF(deadline,created_at) AS days_left
-      from job, company, rangewage, city where city.id_city = job.city and job.id_company = company.id_company 
+      from job, company, rangewage, city,citiesjob 
+      where city.id_city = citiesjob.id_city and job.id_company = company.id_company 
       and job.id_range = rangewage.id_range
       and job.is_lock = 0
-      and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}`,
+      and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}
+      GROUP BY job.id_job`,
       []
     );
 
     return {
-      data: rows,
+      data,
       total: rowsList.length,
     };
   },
 
-  getSuggetJobsForYou: async () => {
+  getSuggetJobsForYou: async (city?: string) => {
     const limit = 9;
     let sql = limit ? 'limit 9' : '';
 
     const rows: any = await queryDb(
-      `select name_job, name_company, job.id_job, name_city, name_range, work_location, logo 
-      from city, job, company, rangewage,service,service_history 
-      where city.id_city = job.city and job.id_company = company.id_company and job.id_range = rangewage.id_range
+      `select name_job, name_company, job.id_job, name_city, name_range, work_location, logo,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency  
+      from city, job, company, rangewage,service,service_history,citiesjob 
+      where city.id_city = citiesjob.id_city and citiesjob.id_job = job.id_job
+      and job.id_company = company.id_company and job.id_range = rangewage.id_range
       and service.id_service = service_history.id_service 
+      and service_history.id_history = job.id_history
       and DATE(deadline) > CURDATE()
-      and service.urgent_recruitment <> 1
+      and citiesjob.id_city =?
       and is_lock = 0
-      GROUP BY job.id_job ${sql}`,
-      []
+      ${sql}
+      `,
+      [city]
     );
+    const data = dataJobs(rows);
 
     return {
-      job_suggets_for_you: rows,
-      total: rows.length,
+      job_suggets_for_you: data,
+      total: data.length,
     };
   },
   getTopJob: async () => {

@@ -12,6 +12,7 @@ import { IPayloadLogin, TROLE } from '../types/common';
 import { findCompanyByid, findUserByid } from './common.service';
 import { IPayloadFollow } from '../types/users';
 import mailerService from './mailer.service';
+import { dataJobs } from '../utils/comon';
 
 var _ = require('lodash');
 var bcrypt = require('bcrypt');
@@ -42,6 +43,17 @@ const companyService = {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
         'Tài khoản người dùng chưa được xác nhận'
+      );
+
+    const companyLock: any = await queryDb(
+      'select * from users, company where users.id_user = company.id_company and is_lock = 1 and email=?',
+      [email]
+    );
+
+    if (!_.isEmpty(companyLock))
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        'Tài khoản người dùng bị khóa'
       );
 
     const match = await bcrypt.compare(
@@ -196,17 +208,30 @@ const companyService = {
     );
 
     const jobs: any = await queryDb(
-      `select id_job,name_range,name_job,work_location,deadline
-      from job, rangewage where rangewage.id_range = job.id_range 
-      and id_company=? and deadline > CURDATE()
-      and is_lock <> 1
+      `SELECT name_job, name_company, job.id_job, name_city, name_range, work_location, logo,deadline,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency 
+      FROM city, job, company, rangewage, service, service_history,citiesjob 
+      WHERE city.id_city = citiesjob.id_city 
+        AND job.id_job = citiesjob.id_job
+        AND job.id_company = company.id_company 
+        AND job.id_range = rangewage.id_range
+        AND service.id_service = service_history.id_service 
+        AND job.id_history = service_history.id_history
+        AND DATE(deadline) > CURDATE()
+        AND company.id_company=?
+        AND is_lock = 0
       `,
       [id_company]
     );
 
+    const data = dataJobs(jobs);
+
     return {
-      jobs: jobs,
-      total: jobs.length,
+      jobs: data,
+      total: data.length,
       company: company[0],
       followere: followere,
     };
@@ -420,6 +445,7 @@ const companyService = {
       jobs: rows,
     };
   },
+
   getProfileAppliedByJob: async ({
     id_company,
     id_job,
@@ -434,15 +460,20 @@ const companyService = {
     const sqlStatus_job = status_job && `and apply.status=${status_job}`;
 
     const rows: any = await queryDb(
-      `select name_job,avatar, job.id_job,id_apply,deadline,file_cv,users.id_user, apply.created_at, users.fullName, 
-      birthDay, name_rank, status,introducing_letter,users.email
-      from typerank, users,job, apply, company 
-      where  
-      job.id_type = typerank.id_rank and  
-      users.id_user = apply.id_user 
-      and apply.id_job = job.id_job 
-      and job.id_company = company.id_company
-      and job.id_company=? ${sqlId_job} ${sqlStatus_job}`,
+      `SELECT  name_job,avatar, job.id_job,id_apply,deadline,
+      profile_cv.file_cv as file_online, apply.file_cv as file_desktop,
+          users.id_user, apply.created_at, users.fullName, 
+         birthDay, status,introducing_letter,users.email,typerank.name_rank
+      FROM
+        apply
+        LEFT JOIN profile_cv ON profile_cv.id_profile = apply.id_profile
+        LEFT JOIN job ON apply.id_job = job.id_job
+        LEFT JOIN users on (users.id_user = apply.id_user), typerank
+      WHERE
+        apply.id_job = job.id_job
+        AND job.id_company=?
+        AND typerank.id_rank = job.id_type
+      ${sqlId_job} ${sqlStatus_job}`,
       [id_company]
     );
 

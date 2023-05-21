@@ -39,7 +39,10 @@ const adminService = {
       );
 
     const users: any = await queryDb(
-      `SELECT u.is_lock,u.id_user, u.fullName, u.email, u.address, u.avatar, r.name_role, c.logo FROM users u INNER JOIN roleuser r ON u.id_role = r.id_role LEFT JOIN company c ON u.id_user = c.id_company ${sql_limit}`,
+      `SELECT u.is_lock,u.id_user, u.fullName, u.email,r.id_role,
+      u.address, u.avatar, r.name_role, c.logo,u.city,c.city as city_company
+      FROM users u INNER JOIN roleuser r ON u.id_role = r.id_role 
+      LEFT JOIN company c ON u.id_user = c.id_company ${sql_limit}`,
       []
     );
 
@@ -64,7 +67,7 @@ const adminService = {
   getCompanyRegisterList: async () => {
     const id_role = 'company';
     const rows: any = await queryDb(
-      `SELECT * FROM company
+      `SELECT *,company.city as city_company FROM company
        JOIN users ON users.id_user = company.id_company and id_role =?
        JOIN companyField ON company.idCompanyField  = companyField.id_companyField
        WHERE company.active_status = 0;
@@ -75,6 +78,22 @@ const adminService = {
     return {
       company_list: rows,
       total: rows.length,
+    };
+  },
+
+  getUserCompanyById: async (id_company: string) => {
+    const id_role = 'company';
+    const rows: any = await queryDb(
+      `SELECT *,company.city as city_company FROM company
+       JOIN users ON users.id_user = company.id_company and id_role =?
+       JOIN companyField ON company.idCompanyField  = companyField.id_companyField
+       WHERE company.active_status = 1 and users.id_user =?;
+    `,
+      [id_role, id_company]
+    );
+
+    return {
+      company: rows[0],
     };
   },
 
@@ -164,9 +183,10 @@ const adminService = {
 
     const city_by_industry: any =
       await queryDb(`SELECT city.name_city, COUNT(*) AS city_count
-      FROM job
-      INNER JOIN city ON city.id_city = job.city
-      GROUP BY job.city;
+      FROM citiesjob
+      INNER JOIN city ON city.id_city = citiesjob.id_city
+      INNER JOIN job on job.id_job = citiesjob.id_job
+      GROUP BY citiesjob.id_city;
       `);
     const total_revenue: any =
       await queryDb(`SELECT SUM(s.price) AS total_revenue

@@ -22,6 +22,7 @@ const chatValidation = {
     body: Joi.object().keys({
       id_user: Joi.string().required(),
       id_company: Joi.string().required(),
+      id_job: Joi.string().required(),
       message: Joi.string().required(),
       sender: Joi.string().valid('user', 'company').required(),
     }),

@@ -7,6 +7,7 @@ import { IPayLoadCV, IPayloadFollow, IPayloadSaveJob } from '../types/users';
 import { findJobById, findUserByid } from './common.service';
 import { NextFunction } from 'express';
 import { TROLE } from '../types/common';
+import { dataJobs } from '../utils/comon';
 
 var _ = require('lodash');
 
@@ -409,13 +410,25 @@ const userService = {
       };
 
     const rows: any = await queryDb(
-      'select company.logo, name_job, name_company, work_location, deadline, savejob.id_job, name_range from rangewage, users, savejob, job, company where rangewage.id_range = job.id_range and job.id_company = company.id_company and users.id_user = savejob.id_user and job.id_job = savejob.id_job and users.id_user=?',
+      `select company.logo, name_job, name_company, work_location, deadline, savejob.id_job, name_range,city.name_city,
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency 
+      from rangewage, users, savejob, job, company,service, service_history,citiesjob,city   
+      where rangewage.id_range = job.id_range and job.id_company = company.id_company
+      AND city.id_city = citiesjob.id_city 
+      AND citiesjob.id_job = job.id_job
+      AND service.id_service = service_history.id_service 
+      AND job.id_history = service_history.id_history
+      and users.id_user = savejob.id_user and job.id_job = savejob.id_job and users.id_user=?`,
       [id_user]
     );
+    const data = dataJobs(rows);
 
     if (rows) {
       return {
-        savedList: rows,
+        savedList: data,
         total: rows.length,
       };
     } else {

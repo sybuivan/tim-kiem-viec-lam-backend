@@ -20,3 +20,22 @@ export const messageApplied = (name_job: string, status: number) => {
       break;
   }
 };
+
+export const dataJobs = (jobs: any) => {
+  const data: any = jobs.reduce((values: any, current: any) => {
+    const indexJob = values.findIndex(
+      (item: any) => item.id_job === current.id_job
+    );
+    const { name_city } = current;
+    if (indexJob == -1) {
+      const job = { ...current, cities: [{ name_city }] };
+      values.push(job);
+    } else {
+      const job = values[indexJob];
+      job.cities.push({ name_city });
+    }
+    return values;
+  }, []);
+
+  return data;
+};
