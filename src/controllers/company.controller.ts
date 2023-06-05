@@ -134,12 +134,13 @@ const companyController = {
 
   followUser: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { followers, total, name_company, id_user } =
+      const { followers, total, name_company, id_user, id_company } =
         await companyService.followUser(req.body);
 
       const notifi = await notificationService.followNotification({
         full_name: name_company,
         id_user,
+        id_user_follow: id_company,
       });
 
       if (sockets[id_user]) {

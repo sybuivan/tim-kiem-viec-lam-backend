@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import { messageApplied } from '../utils/comon';
 import { findUserByid } from './common.service';
+import { TNotification } from '../types/common';
 
 const notificationService = {
   applyNotification: async (
@@ -15,6 +16,7 @@ const notificationService = {
       name_job: string;
     }[]
   ) => {
+    const type_notification: TNotification = 'apply';
     let results: any = [];
     for (let i = 0; i < listApply.length; i++) {
       const rows: any = await queryDb('select * from apply where id_apply=?', [
@@ -26,13 +28,14 @@ const notificationService = {
         const id_notification = uniqid();
         const created_at = new Date();
         const result: any = await queryDb(
-          `insert into notification(id_notification,id_apply,id_user,content,created_at) values(?,?,?,?,?)`,
+          `insert into notification(id_notification,id_apply,id_user,content,created_at,type_notification) values(?,?,?,?,?,?)`,
           [
             id_notification,
             listApply[i].id_apply,
             listApply[i].id_user,
             messageApplied(listApply[i].name_job, listApply[i].status),
             created_at,
+            type_notification,
           ]
         );
 
@@ -60,7 +63,7 @@ const notificationService = {
       name_company,
     }: { id_job: string; name_job: string; name_company: string }
   ) => {
-    console.log(name_company);
+    const type_notification: TNotification = 'job';
     let results: any = [];
     for (let i = 0; i < listUser.length; i++) {
       const rows: any = await queryDb('select * from users where id_user=?', [
@@ -72,8 +75,15 @@ const notificationService = {
         const content = `${name_company} đăng tuyển vị trí ${name_job}`;
         const created_at = new Date();
         const result: any = await queryDb(
-          `insert into notification(id_notification,id_job,id_user,content,created_at) values(?,?,?,?,?)`,
-          [id_notification, id_job, listUser[i].id_user, content, created_at]
+          `insert into notification(id_notification,id_job,id_user,content,created_at,type_notification) values(?,?,?,?,?,?)`,
+          [
+            id_notification,
+            id_job,
+            listUser[i].id_user,
+            content,
+            created_at,
+            type_notification,
+          ]
         );
 
         const notifi: any = await queryDb(
@@ -95,21 +105,32 @@ const notificationService = {
   followNotification: async ({
     full_name,
     id_user,
+    id_user_follow,
   }: {
     id_user: string;
     full_name: string;
+    id_user_follow: string;
   }) => {
     const rows: any = await queryDb('select * from users where id_user=?', [
       id_user,
     ]);
+    const type_notification: TNotification = 'follow';
 
     if (rows.length > 0) {
       const id_notification = uniqid();
       const content = `${full_name} đang theo dõi bạn`;
       const created_at = new Date();
       const result: any = await queryDb(
-        `insert into notification(id_notification,id_user,content,created_at) values(?,?,?,?)`,
-        [id_notification, id_user, content, created_at]
+        `insert into notification(id_notification,id_user,content,created_at,type_notification,id_user_follow) 
+        values(?,?,?,?,?,?)`,
+        [
+          id_notification,
+          id_user,
+          content,
+          created_at,
+          type_notification,
+          id_user_follow,
+        ]
       );
 
       const notifi: any = await queryDb(

@@ -111,12 +111,12 @@ const userController = {
 
   followCompany: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { follow, full_name, id_company } = await userService.followCompany(
-        req.body
-      );
+      const { follow, full_name, id_company, id_user } =
+        await userService.followCompany(req.body);
       const notifi = await notificationService.followNotification({
         full_name,
         id_user: id_company,
+        id_user_follow: id_user,
       });
 
       console.log({ notifi });

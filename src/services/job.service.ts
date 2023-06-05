@@ -9,7 +9,7 @@ import ApiError from '../utils/ApiError';
 import { dataJobs } from '../utils/comon';
 import { findCompanyByid } from './common.service';
 
-const LIMIT = 40;
+const LIMIT = 20;
 
 const jobService = {
   createJob: async (body: IJob, id_company: string) => {
@@ -249,6 +249,7 @@ const jobService = {
       job_suggets,
     };
   },
+
   getJobByIdCompany: async (id_job: string) => {
     const job: any = await queryDb('select * from job where id_job=?', [
       id_job,
@@ -394,11 +395,14 @@ const jobService = {
       and job.id_job = citiesjob.id_job
       and job.is_lock = 0
       and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} 
-      order by job.created_at desc ${sql_limit}`,
+      order by job.created_at desc`,
       []
     );
 
-    const data = dataJobs(rows);
+    const startPage = page === 1 ? 0 : (page - 1) * LIMIT;
+    const totalData = dataJobs(rows).length;
+    const data = dataJobs(rows).slice(startPage, LIMIT + startPage);
+    console.log({ totalData, startPage, data: dataJobs(rows).slice(20, 26) });
 
     const rowsList: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo ,DATEDIFF(deadline,created_at) AS days_left
@@ -413,7 +417,7 @@ const jobService = {
 
     return {
       data,
-      total: rowsList.length,
+      total: totalData,
     };
   },
 
@@ -452,7 +456,8 @@ const jobService = {
 
     const rows: any = await queryDb(
       `select COUNT(job.id_job) as total_count,typerank.name_rank,typerank.id_rank from job, typerank
-      WHERE job.id_type = typerank.id_rank
+      WHERE job.id_type = typerank.id_rank and job.is_lock = 0
+      and DATE(deadline) > CURDATE()
       GROUP BY typerank.id_rank
       LIMIT 10`,
       []

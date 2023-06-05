@@ -12,7 +12,6 @@ interface IBuyService {
 const buy_service = {
   getService: async () => {
     const services: any = await queryDb('select * from service');
-
     return services;
   },
   getServiceByCompany: async (id_company: string) => {
@@ -34,7 +33,8 @@ const buy_service = {
       LEFT JOIN (
         SELECT job.id_history, COUNT(job.id_job) AS used from job GROUP BY job.id_history
       ) as JobLimit on JobLimit.id_history = service_history.id_history
-      WHERE service.id_service = service_history.id_service and service_history.id_company = ?`,
+      WHERE service.id_service = service_history.id_service 
+      and service_history.id_company = ?`,
       [id_company]
     );
 

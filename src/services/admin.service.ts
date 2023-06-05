@@ -67,7 +67,7 @@ const adminService = {
   getCompanyRegisterList: async () => {
     const id_role = 'company';
     const rows: any = await queryDb(
-      `SELECT *,company.city as city_company FROM company
+      `SELECT *,company.city as city_company, company.address as address FROM company
        JOIN users ON users.id_user = company.id_company and id_role =?
        JOIN companyField ON company.idCompanyField  = companyField.id_companyField
        WHERE company.active_status = 0;

@@ -330,13 +330,15 @@ const companyService = {
         AND users.id_user = profile_cv.id_user
         and follow.id_user = users.id_user
         and id_company=?
-        AND type_role =?`,
+        AND type_role =?
+        group by users.id_user`,
         [id_company, type_role]
       );
 
       return {
         followers: rows,
         total: rows.length,
+        id_company,
         name_company: company[0].name_company,
         id_user,
       };
@@ -391,7 +393,8 @@ const companyService = {
       AND users.id_user = profile_cv.id_user
       and follow.id_user = users.id_user
       and id_company=?
-      AND type_role =?`,
+      AND type_role =?
+      group by users.id_user`,
       [id_company, type_role]
     );
 
@@ -538,7 +541,8 @@ const companyService = {
         GROUP BY id_history
       ) AS used ON service_history.id_history = used.id_history
       WHERE service_history.id_company = ?
-        AND service_history.activated = ?`,
+      and service_history.expiry >= CURDATE()
+      AND service_history.activated = ?`,
       [id_company, activated]
     );
 

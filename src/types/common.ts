@@ -8,3 +8,4 @@ export interface MulterRequest extends Request {
 }
 
 export type TROLE = 'admin' | 'user' | 'company';
+export type TNotification = 'apply' | 'follow' | 'job';

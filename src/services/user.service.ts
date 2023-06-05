@@ -257,7 +257,7 @@ const userService = {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Đã follow.');
 
     const rows: any = await queryDb(
-      'insert into follow(id_user, id_company, created_at, type_role) values(?,?,?, ?)',
+      'insert into follow(id_user, id_company, created_at, type_role) values(?,?,?,?)',
       [id_user, id_company, created_at, type_role]
     );
     if (rows.insertId >= 0) {
@@ -274,6 +274,7 @@ const userService = {
         follow,
         full_name: user[0].fullName,
         id_company,
+        id_user,
       };
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Follow không thành công');
