@@ -106,7 +106,9 @@ const companyController = {
   ),
   getCompanyList: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { companyList, total } = await companyService.getCompanyList();
+      const { companyList, total } = await companyService.getCompanyList(
+        req.params.limit
+      );
 
       if (companyList) {
         res.status(httpStatus.OK).send({

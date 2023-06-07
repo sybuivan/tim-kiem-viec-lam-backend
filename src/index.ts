@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import routes from './routes';
 import { errorConverter, errorHandler } from './middlewares/error';
+import config from './configs/connectDb';
 const puppeteer = require('puppeteer');
 const path = require('path');
 
@@ -13,11 +14,11 @@ dotenv.config();
 export const sockets: any = {};
 
 const app: Express = express();
-
+console.log(process.env.DOMAIN_DEV);
 // config path images
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.DOMAIN_DEV,
   })
 );
 
@@ -61,7 +62,7 @@ app.use(errorHandler);
 const http = require('http').Server(app);
 export const io = require('socket.io')(http, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.DOMAIN_DEV,
     methods: ['GET', 'POST'],
   },
 });
@@ -86,4 +87,11 @@ io.on('connection', (socket: any) => {
 
 http.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+  console.log({
+    host: process.env.HOST_DOMAIN,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    PORT: process.env.PORT,
+  });
 });

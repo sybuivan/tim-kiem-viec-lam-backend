@@ -251,9 +251,14 @@ const jobService = {
   },
 
   getJobByIdCompany: async (id_job: string) => {
-    const job: any = await queryDb('select * from job where id_job=?', [
-      id_job,
-    ]);
+    const job: any = await queryDb(
+      `select *, CASE 
+        WHEN job.deadline < CURRENT_TIMESTAMP THEN true
+        ELSE false
+        END AS is_future_deadline
+        from job where id_job=?`,
+      [id_job]
+    );
     const citys: any = await queryDb(
       'select city.id_city, name_city from citiesjob, city where citiesjob.id_city = city.id_city and  id_job=?',
       [id_job]
@@ -272,15 +277,21 @@ const jobService = {
   getJobListByCompany: async (id_company: string) => {
     const { company } = await findCompanyByid(id_company);
     const jobs = await queryDb(
-      `select name_job,job.id_job, is_lock, deadline, work_location, created_at,countJob
-      from job 
+      `SELECT job.name_job, job.id_job, job.is_lock, job.deadline, job.work_location, job.created_at,
+        CASE 
+          WHEN job.deadline < CURRENT_TIMESTAMP THEN true
+          ELSE false
+        END AS is_future_deadline,
+        SumJob.countJob
+      FROM job 
       LEFT JOIN (
-        SELECT COUNT(apply.id_user) as countJob, apply.id_job from apply
-          GROUP by apply.id_job
+        SELECT COUNT(apply.id_user) as countJob, apply.id_job 
+        FROM apply
+        GROUP BY apply.id_job
       ) as SumJob
-      on job.id_job = SumJob.id_job
-      where id_company=? 
-      ORDER BY job.created_at DESC`,
+      ON job.id_job = SumJob.id_job
+      WHERE job.id_company = ?
+      ORDER BY job.created_at DESC;`,
       [id_company]
     );
 
@@ -330,6 +341,7 @@ const jobService = {
     id_experience?: string;
     id_rank?: string;
     page?: number;
+    id_working_form?: string;
   }) => {
     const {
       city = '',
@@ -339,6 +351,7 @@ const jobService = {
       id_experience = '',
       id_rank = '',
       page = 1,
+      id_working_form = '',
     } = queryParams;
 
     if (_.isEmpty(queryParams)) {
@@ -376,8 +389,8 @@ const jobService = {
     const sql_id_experience =
       id_experience && `and job.id_experience = '${id_experience}'`;
     const sql_id_rank = id_rank && `and job.id_type = '${id_rank}'`;
-    const sql_limit =
-      page === 1 ? `LIMIT 0,${LIMIT}` : `LIMIT ${(page - 1) * LIMIT},${LIMIT}`;
+    const sql_id_working_form =
+      id_working_form && `and job.id_working_form = '${id_working_form}'`;
 
     const rows: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range,job.created_at,
@@ -394,7 +407,8 @@ const jobService = {
       and job.id_company = company.id_company
       and job.id_job = citiesjob.id_job
       and job.is_lock = 0
-      and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank} 
+      and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() 
+      ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}${sql_id_working_form} 
       order by job.created_at desc`,
       []
     );
@@ -410,7 +424,8 @@ const jobService = {
       where city.id_city = citiesjob.id_city and job.id_company = company.id_company 
       and job.id_range = rangewage.id_range
       and job.is_lock = 0
-      and DATE(deadline) > CURDATE() ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}
+      and DATE(deadline) > CURDATE() 
+      ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}${sql_id_working_form}
       GROUP BY job.id_job`,
       []
     );

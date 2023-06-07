@@ -135,8 +135,6 @@ const companyService = {
       email,
       address,
       introduce,
-      lat,
-      lng,
       total_people,
       name_company,
       cover_image,
@@ -167,13 +165,11 @@ const companyService = {
     }
 
     const rows: any = await queryDb(
-      'UPDATE company set cover_image=?, address= ?, introduce= ?, lat= ?, lng= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, faxCode=? where id_company = ?',
+      'UPDATE company set cover_image=?, address= ?, introduce= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, faxCode=? where id_company = ?',
       [
         coverImage,
         address,
         introduce,
-        lat,
-        lng,
         logoFile,
         total_people,
         name_company,
@@ -237,7 +233,7 @@ const companyService = {
     };
   },
 
-  getCompanyList: async () => {
+  getCompanyList: async (limit: string) => {
     const active_status: TActiveStatues = 1;
     const companyList: any = await queryDb(
       `SELECT company.id_company, company.name_company, company.logo, COUNT(*) AS totalJob 
@@ -245,7 +241,10 @@ const companyService = {
       WHERE job.id_company = company.id_company 
       and job.is_lock <> 1
       and company.active_status=? and deadline > CURDATE() 
-      GROUP BY company.id_company`,
+      GROUP BY company.id_company
+      order by totalJob desc
+      limit 0,${limit}
+      `,
       [active_status]
     );
 

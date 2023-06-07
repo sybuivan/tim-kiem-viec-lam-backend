@@ -119,7 +119,7 @@ const userController = {
         id_user_follow: id_user,
       });
 
-      console.log({ notifi });
+      // console.log({ notifi, sockets, socket: sockets[id_company] });
 
       if (sockets[id_company]) {
         sockets[id_company].emit('notification', {

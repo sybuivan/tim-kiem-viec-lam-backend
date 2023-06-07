@@ -43,8 +43,8 @@ const userService = {
         'Không tìm thấy tài khoản người dùng'
       );
     const rows: any = await queryDb(
-      'UPDATE users set fullName = ?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ?, is_update_profle=? where id_user = ?',
-      [fullName, birthDay, address, phone, gender, city, avatarFile, 1, id_user]
+      'UPDATE users set fullName = ?,email=?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ?, is_update_profle=? where id_user = ?',
+      [fullName,email, birthDay, address, phone, gender, city, avatarFile, 1, id_user]
     );
     if (rows.insertId >= 0) {
       const users: any = await queryDb('select * from users where email=?', [

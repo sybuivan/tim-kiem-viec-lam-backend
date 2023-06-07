@@ -35,7 +35,7 @@ router.put(
   companyController.updateCompany
 );
 router.get('/get-company-by-id/:id_company', companyController.getCompanyById);
-router.get('/get-company-list', companyController.getCompanyList);
+router.get('/get-company-list/:limit', companyController.getCompanyList);
 router.get('/get-candidate-list', companyController.findCandidate);
 router.get(
   '/get-candidate-follow/:id_company',

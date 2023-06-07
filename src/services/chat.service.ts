@@ -109,8 +109,8 @@ const chatService = {
     const { company } = await findCompanyByid(id_company);
 
     const rows: any = await queryDb(
-      'insert into chat(id_chat,id_user,id_company,message,created_at,id_room,sender) values(?,?,?,?,?,?,?)',
-      [id_chat, id_user, id_company, message, created_at, id_room, sender]
+      'insert into chat(id_chat,message,created_at,id_room,sender) values(?,?,?,?,?)',
+      [id_chat, message, created_at, id_room, sender]
     );
 
     if (rows.insertId >= 0) {
@@ -137,7 +137,8 @@ const chatService = {
 
     if (id_role === 'company') {
       const room: any = await queryDb(
-        'select id_room,fullName,avatar,room.id_user, room.id_company from room, users where users.id_user = room.id_user and id_room=?',
+        `select id_room,fullName,avatar,room.id_user, room.id_company 
+        from room, users where users.id_user = room.id_user and id_room=?`,
         [id_room]
       );
 
@@ -147,7 +148,8 @@ const chatService = {
       };
     } else {
       const room: any = await queryDb(
-        `select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_user from room, company 
+        `select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_user 
+        from room, company 
         where company.id_company = room.id_company and id_room=?`,
         [id_room]
       );
