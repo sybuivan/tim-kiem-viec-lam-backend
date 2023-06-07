@@ -14,11 +14,11 @@ dotenv.config();
 export const sockets: any = {};
 
 const app: Express = express();
-console.log(process.env.DOMAIN_DEV);
+console.log(process.env.DOMAIN_DEV || 'http://localhost:3000');
 // config path images
 app.use(
   cors({
-    origin: process.env.DOMAIN_DEV,
+    origin: process.env.DOMAIN_DEV || 'http://localhost:3000',
   })
 );
 
@@ -49,7 +49,7 @@ app.use(
 // v1 api routes
 app.use('/api/v1', routes);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
