@@ -14,7 +14,6 @@ dotenv.config();
 export const sockets: any = {};
 
 const app: Express = express();
-console.log(process.env.DOMAIN_DEV || 'http://localhost:3000');
 // config path images
 app.use(
   cors({

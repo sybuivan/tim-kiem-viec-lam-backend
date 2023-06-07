@@ -1,13 +1,13 @@
 import mysql from 'mysql2/promise';
 // // create the connection to database
 
-const config = {
+const config: any = {
   db: {
     host: process.env.HOST_DOMAIN || 'localhost',
     user: process.env.USER || 'root',
     password: process.env.PASSWORD || '',
     database: process.env.DATABASE || 'db_tim-kiem-viec-lam',
-    port: process.env.PORT,
+    port: process.env.PORT ?? '',
   },
   listPerPage: 10,
 };
