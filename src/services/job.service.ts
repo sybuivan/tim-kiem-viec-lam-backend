@@ -475,10 +475,10 @@ const jobService = {
     let sql = limit ? 'limit 9' : '';
 
     const rows: any = await queryDb(
-      `select COUNT(job.id_job) as total_count,typerank.name_rank,typerank.id_rank from job, typerank
-      WHERE job.id_type = typerank.id_rank and job.is_lock = 0
+      `select COUNT(job.id_job) as total_count,typeRank.name_rank,typeRank.id_rank from job, typeRank
+      WHERE job.id_type = typeRank.id_rank and job.is_lock = 0
       and DATE(deadline) > CURDATE()
-      GROUP BY typerank.id_rank
+      GROUP BY typeRank.id_rank
       LIMIT 10`,
       []
     );

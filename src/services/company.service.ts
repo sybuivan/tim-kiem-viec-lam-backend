@@ -463,16 +463,16 @@ const companyService = {
       `SELECT  name_job,avatar, job.id_job,id_apply,deadline,
       profile_cv.file_cv as file_online, apply.file_cv as file_desktop,
           users.id_user, apply.created_at, users.fullName, 
-         birthDay, status,introducing_letter,users.email,typerank.name_rank
+         birthDay, status,introducing_letter,users.email,typeRank.name_rank
       FROM
         apply
         LEFT JOIN profile_cv ON profile_cv.id_profile = apply.id_profile
         LEFT JOIN job ON apply.id_job = job.id_job
-        LEFT JOIN users on (users.id_user = apply.id_user), typerank
+        LEFT JOIN users on (users.id_user = apply.id_user), typeRank
       WHERE
         apply.id_job = job.id_job
         AND job.id_company=?
-        AND typerank.id_rank = job.id_type
+        AND typeRank.id_rank = job.id_type
       ${sqlId_job} ${sqlStatus_job}`,
       [id_company]
     );
