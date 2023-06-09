@@ -6,11 +6,15 @@ import bodyParser from 'body-parser';
 import routes from './routes';
 import { errorConverter, errorHandler } from './middlewares/error';
 import config from './configs/connectDb';
-import baseClient from './configs/domain';
 const puppeteer = require('puppeteer');
 const path = require('path');
 
 dotenv.config();
+const isDev = process.env.NODEJS_APP_NODE_ENV === 'development' ? true : false;
+
+const baseClient = isDev
+  ? process.env.HOST_API_FRONTEND_DEV
+  : process.env.HOST_API_FRONTEND_PRO;
 
 export const sockets: any = {};
 
@@ -86,5 +90,7 @@ io.on('connection', (socket: any) => {
 });
 
 http.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(
+    `Example app listening on port ${port} ${process.env.HOST_API_FRONTEND_DEV}`
+  );
 });
