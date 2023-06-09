@@ -36,5 +36,6 @@ router.get(
 router.get('/get-list-job', jobController.getListJob);
 router.get('/get-list-job-filters', jobController.getLisJobFilters);
 router.get('/get-top-job', jobController.getTopJob);
+router.get('/get-job-news', jobController.getJobNews);
 
 export default router;

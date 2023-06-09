@@ -37,7 +37,7 @@ const applyService = {
 
     let cv_file = '';
     if (fileName) {
-      cv_file = `http://localhost:5000/${fileName}`;
+      cv_file = fileName;
     } else {
       const profile_cv: any = await queryDb(
         'select * from profile_cv where id_user=?',

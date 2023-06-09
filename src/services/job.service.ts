@@ -161,8 +161,6 @@ const jobService = {
         'Không tìm thấy bài tuyển dụng'
       );
 
-    console.log({ is_lock });
-
     const rows: any = await queryDb('update job set is_lock=? where id_job=?', [
       is_lock,
       id_job,
@@ -180,8 +178,15 @@ const jobService = {
 
   getJobById: async (id_job_params: string) => {
     const job: any = await queryDb(
-      `select * from job, company,rangewage,experience,companyfield, typeRank 
+      `select *,  
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+        ELSE 0
+      END AS urgency 
+      from job, company,rangewage,experience,companyfield, typeRank,service, service_history 
       where id_job=? and  typeRank.id_rank = job.id_type 
+      AND service.id_service = service_history.id_service 
+      AND job.id_history = service_history.id_history
       and job.id_field = companyfield.id_companyfield
       and rangewage.id_range = job.id_range
       and company.id_company = job.id_company 
@@ -190,6 +195,7 @@ const jobService = {
       `,
       [id_job_params]
     );
+
     if (_.isEmpty(job))
       throw new ApiError(
         httpStatus.BAD_REQUEST,
@@ -416,7 +422,6 @@ const jobService = {
     const startPage = page === 1 ? 0 : (page - 1) * LIMIT;
     const totalData = dataJobs(rows).length;
     const data = dataJobs(rows).slice(startPage, LIMIT + startPage);
-    console.log({ totalData, startPage, data: dataJobs(rows).slice(20, 26) });
 
     const rowsList: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo ,DATEDIFF(deadline,created_at) AS days_left
@@ -480,6 +485,30 @@ const jobService = {
 
     return {
       data: rows,
+    };
+  },
+
+  getJobNews: async () => {
+    const rows: any = await queryDb(
+      `SELECT name_job, name_company, job.id_job, name_city, name_range, work_location, logo
+      from city, job, company, rangewage,service,service_history,citiesjob
+      WHERE job.created_at >= CURDATE() - INTERVAL DAYOFWEEK(CURDATE()) + 6 DAY
+      AND job.created_at < CURDATE() + INTERVAL 1 DAY 
+      and city.id_city = citiesjob.id_city and citiesjob.id_job = job.id_job
+      and job.id_company = company.id_company and job.id_range = rangewage.id_range
+      and service.id_service = service_history.id_service 
+      and service_history.id_history = job.id_history
+      and DATE(deadline) > CURDATE()
+      and is_lock = 0
+      ORDER BY job.created_at DESC;
+      `,
+      []
+    );
+    const data = dataJobs(rows);
+
+    return {
+      data,
+      total: data.length,
     };
   },
 };

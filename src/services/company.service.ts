@@ -147,11 +147,9 @@ const companyService = {
     } = body;
     let logoFile = '';
     const { company } = await findCompanyByid(id_company);
-    const coverImage = cover_background
-      ? `http://localhost:5000/${cover_background}`
-      : company[0].logo;
+    const coverImage = cover_background ? cover_background : company[0].logo;
     if (logo) {
-      logoFile = `http://localhost:5000/${logo}`;
+      logoFile = logo;
     } else {
       logoFile = company[0].logo;
     }

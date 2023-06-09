@@ -154,6 +154,17 @@ const jobController = {
       }
     }
   ),
+  getJobNews: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { data, total } = await jobService.getJobNews();
+      if (data) {
+        res.status(httpStatus.OK).send({
+          data,
+          total,
+        });
+      }
+    }
+  ),
 };
 
 export default jobController;

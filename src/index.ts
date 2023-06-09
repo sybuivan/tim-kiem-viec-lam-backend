@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import routes from './routes';
 import { errorConverter, errorHandler } from './middlewares/error';
 import config from './configs/connectDb';
+import baseClient from './configs/domain';
 const puppeteer = require('puppeteer');
 const path = require('path');
 
@@ -17,7 +18,7 @@ const app: Express = express();
 // config path images
 app.use(
   cors({
-    origin: process.env.DOMAIN_DEV || 'http://localhost:3000',
+    origin: baseClient,
   })
 );
 
@@ -61,7 +62,7 @@ app.use(errorHandler);
 const http = require('http').Server(app);
 export const io = require('socket.io')(http, {
   cors: {
-    origin: process.env.DOMAIN_DEV,
+    origin: baseClient,
     methods: ['GET', 'POST'],
   },
 });
@@ -86,11 +87,4 @@ io.on('connection', (socket: any) => {
 
 http.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
-  console.log({
-    host: process.env.HOST_DOMAIN,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-    PORT: process.env.PORT,
-  });
 });
