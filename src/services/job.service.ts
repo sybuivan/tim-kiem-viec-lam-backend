@@ -183,9 +183,10 @@ const jobService = {
         WHEN service.urgent_recruitment = 1 THEN 1
         ELSE 0
       END AS urgency 
-      from job, company,rangewage,experience,companyfield, typeRank,service, service_history 
+      from job, company,rangewage,experience,companyfield, typeRank,service, service_history,working_form 
       where id_job=? and  typeRank.id_rank = job.id_type 
-      AND service.id_service = service_history.id_service 
+      AND service.id_service = service_history.id_service
+      AND working_form.id_working_form = job.id_working_form
       AND job.id_history = service_history.id_history
       and job.id_field = companyfield.id_companyfield
       and rangewage.id_range = job.id_range
@@ -247,7 +248,7 @@ const jobService = {
       and is_lock = 0
       AND deadline > NOW()
       and (name_job LIKE '%${name_job}%' or job.id_range =? or work_location LIKE '%${work_location}%' or id_field=?) limit 5`,
-      [id_job, id_range, work_location, id_field]
+      [id_job, id_range, id_field]
     );
 
     return {
@@ -288,15 +289,21 @@ const jobService = {
           WHEN job.deadline < CURRENT_TIMESTAMP THEN true
           ELSE false
         END AS is_future_deadline,
-        SumJob.countJob
+        SumJob.countJob, 
+      CASE
+        WHEN service.urgent_recruitment = 1 THEN 1
+      ELSE 0
+      END AS urgency
       FROM job 
       LEFT JOIN (
         SELECT COUNT(apply.id_user) as countJob, apply.id_job 
         FROM apply
         GROUP BY apply.id_job
       ) as SumJob
-      ON job.id_job = SumJob.id_job
-      WHERE job.id_company = ?
+      ON job.id_job = SumJob.id_job,service, service_history 
+      WHERE job.id_company = ?  
+      AND service.id_service = service_history.id_service 
+      AND job.id_history = service_history.id_history
       ORDER BY job.created_at DESC;`,
       [id_company]
     );
@@ -348,6 +355,7 @@ const jobService = {
     id_rank?: string;
     page?: number;
     id_working_form?: string;
+    created?: string;
   }) => {
     const {
       city = '',
@@ -358,6 +366,7 @@ const jobService = {
       id_rank = '',
       page = 1,
       id_working_form = '',
+      created = 'DESC',
     } = queryParams;
 
     if (_.isEmpty(queryParams)) {
@@ -415,7 +424,7 @@ const jobService = {
       and job.is_lock = 0
       and job.id_range = rangewage.id_range and DATE(deadline) > CURDATE() 
       ${sqlCompanyfield}${sqlCity}${sqlKeyword}${sqlId_range}${sql_id_experience}${sql_id_rank}${sql_id_working_form} 
-      order by job.created_at desc`,
+      order by job.created_at ${created}`,
       []
     );
 
@@ -479,6 +488,7 @@ const jobService = {
       WHERE job.id_type = typeRank.id_rank and job.is_lock = 0
       and DATE(deadline) > CURDATE()
       GROUP BY typeRank.id_rank
+      order by total_count desc
       LIMIT 10`,
       []
     );

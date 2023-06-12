@@ -137,8 +137,8 @@ const chatService = {
 
     if (id_role === 'company') {
       const room: any = await queryDb(
-        `select id_room,fullName,avatar,room.id_user, room.id_company 
-        from room, users where users.id_user = room.id_user and id_room=?`,
+        `select id_room,fullName,avatar,room.id_user, room.id_company,name_job,job.id_job  
+        from room, users,job where users.id_user = room.id_user and id_room=? and job.id_job = room.id_job`,
         [id_room]
       );
 
@@ -148,9 +148,9 @@ const chatService = {
       };
     } else {
       const room: any = await queryDb(
-        `select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_user 
-        from room, company 
-        where company.id_company = room.id_company and id_room=?`,
+        `select id_room,name_company as fullName,logo as avatar,room.id_company, room.id_user,name_job,job.id_job 
+        from room, company,job 
+        where company.id_company = room.id_company and id_room=? and job.id_job = room.id_job`,
         [id_room]
       );
       return {

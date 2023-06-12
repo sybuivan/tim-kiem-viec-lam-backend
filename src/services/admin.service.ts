@@ -166,6 +166,38 @@ const adminService = {
         break;
     }
   },
+  updateSettingCommon: async (body: {
+    type: string;
+    id: string;
+    name: string;
+  }) => {
+    const { type, name, id } = body;
+    switch (type) {
+      case 'companyfield': {
+        const rows: any = await queryDb(
+          'update companyfield set name_field =? where id_companyField=?',
+          [name, id]
+        );
+        return;
+        break;
+      }
+      case 'rangewage': {
+        const item: any = await queryDb(
+          'select * from rangewage where id_range=? and name_range=?',
+          [id, name]
+        );
+        const rows: any = await queryDb(
+          'update rangewage set name_range =? where id_range=?',
+          [name, id]
+        );
+        return;
+        break;
+      }
+      default:
+        return;
+        break;
+    }
+  },
 
   statistical: async () => {
     const jobs_by_industry: any = await queryDb(`

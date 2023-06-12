@@ -72,6 +72,12 @@ const adminController = {
       res.status(httpStatus.OK).send('Thành công');
     }
   ),
+  updateSettingCommon: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      await adminService.updateSettingCommon(req.body);
+      res.status(httpStatus.OK).send('Thành công');
+    }
+  ),
   getUserCompanyById: catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { company } = await adminService.getUserCompanyById(

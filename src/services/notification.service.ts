@@ -184,6 +184,19 @@ const notificationService = {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Không tìm thấy thông báo');
     }
   },
+
+  deleteNotificationFollow: async (id_user_follow: string, id_user: string) => {
+    const notification: any = await queryDb(
+      'delete from notification where id_user_follow=? and id_user=?',
+      [id_user_follow, id_user]
+    );
+
+    if (notification.insertId >= 0) {
+      return id_user;
+    } else {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Không tìm thấy thông báo');
+    }
+  },
 };
 
 export default notificationService;

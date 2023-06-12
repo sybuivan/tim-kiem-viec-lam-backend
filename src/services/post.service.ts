@@ -10,7 +10,10 @@ const LIMIT = 20;
 
 const postService = {
   getAllPosts: async () => {
-    const post_list: any = await queryDb(`SELECT * from posts`, []);
+    const post_list: any = await queryDb(
+      `SELECT * from posts order by publishedAt desc`,
+      []
+    );
 
     return {
       post_list,
@@ -40,11 +43,12 @@ const postService = {
     filename: string
   ) => {
     const { title, description, content, id_user } = body;
-    const fileImage = `http://localhost:5000/${filename}`;
+    const publishedAt = new Date();
+    const fileImage = filename;
     const id_post = uniqid();
     const rows: any = await queryDb(
-      `insert into posts(id_user,id_post,title,description,content,image) values(?,?,?,?,?,?)`,
-      [id_user, id_post, title, description, content, fileImage]
+      `insert into posts(id_user,id_post,title,description,content,image,publishedAt) values(?,?,?,?,?,?,?)`,
+      [id_user, id_post, title, description, content, fileImage, publishedAt]
     );
 
     if (rows.insertId >= 0) {
@@ -64,7 +68,7 @@ const postService = {
     const { post } = await postService.getPostDetail(id_post);
     let fileImage = '';
     if (filename) {
-      fileImage = `http://localhost:5000/${filename}`;
+      fileImage = filename;
     } else {
       fileImage = post.image;
     }

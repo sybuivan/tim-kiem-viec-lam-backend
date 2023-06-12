@@ -457,13 +457,16 @@ const companyService = {
   }) => {
     const { company } = await findCompanyByid(id_company);
     const sqlId_job = id_job && `and apply.id_job ='${id_job}'`;
-    const sqlStatus_job = status_job && `and apply.status=${status_job}`;
+    const sqlStatus_job = status_job
+      ? `and apply.status=${status_job}`
+      : 'and apply.status <> 4';
 
     const rows: any = await queryDb(
       `SELECT  name_job,avatar, job.id_job,id_apply,deadline,
+      apply.id_profile,
       profile_cv.file_cv as file_online, apply.file_cv as file_desktop,
-          users.id_user, apply.created_at, users.fullName, 
-         birthDay, status,introducing_letter,users.email,typeRank.name_rank
+      users.id_user, apply.created_at, users.fullName, 
+      birthDay, status,introducing_letter,users.email,typeRank.name_rank
       FROM
         apply
         LEFT JOIN profile_cv ON profile_cv.id_profile = apply.id_profile

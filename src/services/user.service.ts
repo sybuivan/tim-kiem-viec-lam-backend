@@ -8,6 +8,7 @@ import { findJobById, findUserByid } from './common.service';
 import { NextFunction } from 'express';
 import { TROLE } from '../types/common';
 import { dataJobs } from '../utils/comon';
+import notificationService from './notification.service';
 
 var _ = require('lodash');
 
@@ -32,7 +33,7 @@ const userService = {
     ]);
 
     if (fileName) {
-      avatarFile = `http://localhost:5000/${fileName}`;
+      avatarFile = fileName;
     } else {
       avatarFile = user[0].avatar;
     }
@@ -44,7 +45,18 @@ const userService = {
       );
     const rows: any = await queryDb(
       'UPDATE users set fullName = ?,email=?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ?, is_update_profle=? where id_user = ?',
-      [fullName,email, birthDay, address, phone, gender, city, avatarFile, 1, id_user]
+      [
+        fullName,
+        email,
+        birthDay,
+        address,
+        phone,
+        gender,
+        city,
+        avatarFile,
+        1,
+        id_user,
+      ]
     );
     if (rows.insertId >= 0) {
       const users: any = await queryDb('select * from users where email=?', [
@@ -83,7 +95,7 @@ const userService = {
     let fileCV = '';
     let fileNameCV = '';
     if (fileName) {
-      fileCV = `http://localhost:5000/${fileName}`;
+      fileCV = fileName;
       fileNameCV = file_name;
     }
 
@@ -150,7 +162,7 @@ const userService = {
     let fileCV = '';
     let fileNameCV = '';
     if (fileName) {
-      fileCV = `http://localhost:5000/${fileName}`;
+      fileCV = fileName;
       fileNameCV = file_name;
     } else {
       fileCV = user[0].file_cv;
@@ -191,7 +203,6 @@ const userService = {
       );
     }
   },
-
   updateIsPublicCV: async (body: IPayLoadCV) => {
     const { id_profile, id_user, is_public } = body;
 
@@ -296,6 +307,8 @@ const userService = {
       'Delete from follow where id_user=? and id_company=? and type_role=?',
       [id_user, id_company, type_role]
     );
+
+    await notificationService.deleteNotificationFollow(id_user, id_company);
 
     if (rows.insertId >= 0) {
       const { followers, total_follow } = await userService.getAllFollowUser(

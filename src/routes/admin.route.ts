@@ -33,6 +33,7 @@ router.put(
 router.get('/statistical', adminController.statistical);
 
 router.post('/setting/common', adminController.settingCommon);
+router.post('/setting/update-common', adminController.updateSettingCommon);
 router.get(
   '/get-company-by-id/:id_company',
   adminController.getUserCompanyById

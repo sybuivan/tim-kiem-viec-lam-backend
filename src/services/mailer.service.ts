@@ -14,8 +14,8 @@ const mailerService = {
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: 'sybuivan1429@gmail.com',
-        pass: 'unknoibvsrtabove',
+        user: process.env.EMAIL_USER,
+        pass: process.env.PASSWORD_EMAIL,
       },
     });
 
