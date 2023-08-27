@@ -1,30 +1,27 @@
-import { validateToken, validateRefreshToken, generateToken } from './JWT';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
+import jwt from 'jsonwebtoken';
 import ApiError from '../utils/ApiError';
+import { validateRefreshToken, validateToken } from './JWT';
+import freeze from '../configs/freeze';
+import { IAuthUser } from '../types/auth';
 
-export const isAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // Lấy access token từ header
+export const isAuth = async (req: any, res: Response, next: NextFunction) => {
   try {
     const accessTokenFromHeader = req.headers.authorization;
-    const refreshTokenFromHeader = req.headers.refreshtoken?.toString() || '';
     const accessToken = accessTokenFromHeader?.split(' ')[1];
-    const refreshToken =
-      refreshTokenFromHeader && refreshTokenFromHeader.split(' ')[1];
-    const isValidToken = accessToken && validateToken(accessToken);
-    if (!isValidToken) {
-      const verifiedRefreshToken =
-        refreshToken && validateRefreshToken(refreshToken);
-      if (!verifiedRefreshToken) {
-        next(new ApiError(httpStatus.UNAUTHORIZED, 'Không có quyền truy cập'));
-      } else {
-      }
+    const validToken: any = validateToken(accessToken);
+
+    console.log({ validToken, accessToken });
+    if (!validToken) {
+      next(new ApiError(httpStatus.UNAUTHORIZED, 'Authentication failed'));
     }
-    return next();
+
+    req.user = {
+      id_role: validToken.id_role,
+      id_user: validToken.id_user,
+    };
+    next();
   } catch (error) {
     next(
       new ApiError(
@@ -32,5 +29,22 @@ export const isAuth = async (
         'Login timeout. Please login again !'
       )
     );
+  }
+};
+
+export const isAdmin = (req: any, res: Response, next: NextFunction) => {
+  if (req.user && req.user.id_role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Not have access admin' });
+  }
+};
+
+export const isUser = (req: any, res: Response, next: NextFunction) => {
+  console.log({ req: req.user });
+  if (req.user && req.user.id_role === 'user') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Not have access user' });
   }
 };

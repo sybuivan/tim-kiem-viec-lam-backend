@@ -1,10 +1,8 @@
 import express from 'express';
-import { authController } from '../controllers';
 import userController from '../controllers/user.controller';
-import { isAuth } from '../middlewares/authencation';
+import { isAuth, isUser } from '../middlewares/authencation';
 import { upload, uploadFile } from '../middlewares/upload';
 import validate from '../middlewares/validate';
-import authValidation from '../validations/auth.validation';
 import userValidation from '../validations/user.validation';
 
 const router = express.Router();
@@ -12,12 +10,14 @@ const router = express.Router();
 router.put(
   '/update-profile',
   isAuth,
+  isUser,
   upload.single('avatar'),
   userController.updateUser
 );
 router.post(
   '/create-profile-cv',
   isAuth,
+  isUser,
   uploadFile.single('file_cv'),
   userController.createCV
 );
@@ -25,76 +25,89 @@ router.post(
 router.put(
   '/update-profile-cv',
   isAuth,
+  isUser,
   uploadFile.single('file_cv'),
   userController.updateCV
 );
 
-router.put('/update-is-public', isAuth, userController.updateIsPublicCV);
+router.put(
+  '/update-is-public',
+  isAuth,
+  isUser,
+  userController.updateIsPublicCV
+);
 
-router.get('/get-profile-cv/:id_user', isAuth, userController.getProfileCV);
+router.get('/get-profile-cv', isAuth, isUser, userController.getProfileCV);
 
 router.get(
   '/get-cv-by-id/:id_profile',
   isAuth,
+  isUser,
   userController.getProfileCVById
 );
 
 router.post(
   '/add-follow',
   isAuth,
+  isUser,
   validate(userValidation.followCompany),
   userController.followCompany
 );
 router.delete(
   '/unfollow',
   isAuth,
+  isUser,
   validate(userValidation.followCompany),
   userController.unFollowCompany
 );
 router.get(
-  '/get-all-follow-user/:id_user',
+  '/get-all-follow-user',
   isAuth,
+  isUser,
   userController.getAllFollowUser
 );
 
-router.get(
-  '/get-all-saved-user/:id_user',
-  isAuth,
-  userController.getAllSaveJob
-);
-router.get(
-  '/get-notification/:id_user',
-  isAuth,
-  userController.getNotification
-);
+router.get('/get-all-saved-user', isAuth, isUser, userController.getAllSaveJob);
+router.get('/get-notification', isAuth, isUser, userController.getNotification);
 router.put(
   '/update-notification/:id_notificatiton',
   isAuth,
+  isUser,
   userController.updateNotification
 );
 router.delete(
   '/delete-notification/:id_notificatiton',
   isAuth,
+  isUser,
   userController.deleteNotification
 );
 
 router.post(
   '/save-job',
   isAuth,
-
+  isUser,
   validate(userValidation.saveJob),
   userController.saveJob
 );
 router.get(
   '/get-suggets-job-for-you',
   isAuth,
+  isUser,
   userController.getSuggetJobsForYou
 );
 
 router.delete(
   '/un-save-job',
   isAuth,
+  isUser,
   validate(userValidation.saveJob),
   userController.unSaveJob
+);
+
+router.get(
+  '/get-me',
+  isAuth,
+  validate(userValidation.getMe),
+  userController.getMe
 );
 export default router;

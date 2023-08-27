@@ -16,3 +16,8 @@ export interface IUser {
 }
 
 export type TRole = 'ADMIN' | 'COMPANY' | 'USER';
+
+export interface IAuthUser {
+  id_user: number;
+  id_role: string;
+}

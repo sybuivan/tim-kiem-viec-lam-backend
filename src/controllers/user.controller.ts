@@ -88,8 +88,8 @@ const userController = {
     }
   ),
   getProfileCV: catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { profile_cv } = await userService.getProfileCV(req.params.id_user);
+    async (req: any, res: Response, next: NextFunction) => {
+      const { profile_cv } = await userService.getProfileCV(req.user.id_user);
       if (profile_cv) {
         res.status(httpStatus.OK).send({
           profile_cv,
@@ -145,9 +145,9 @@ const userController = {
   ),
 
   getAllFollowUser: catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: any, res: Response, next: NextFunction) => {
       const { followers, total_follow } = await userService.getAllFollowUser(
-        req.params.id_user
+        req.user.id_user
       );
 
       if (followers) {
@@ -159,9 +159,9 @@ const userController = {
     }
   ),
   getAllSaveJob: catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: any, res: Response, next: NextFunction) => {
       const { savedList, total } = await userService.getAllSaveJob(
-        req.params.id_user
+        req.user.id_user
       );
 
       if (savedList) {
@@ -193,9 +193,9 @@ const userController = {
   ),
 
   getNotification: catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: any, res: Response, next: NextFunction) => {
       const { notificationList, total_notification } =
-        await notificationService.getNotification(req.params.id_user);
+        await notificationService.getNotification(req.user.id_user);
 
       res.status(httpStatus.OK).send({ notificationList, total_notification });
     }
@@ -229,6 +229,47 @@ const userController = {
       }
     }
   ),
+  getMe: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const {
+      email,
+      id_role,
+    }: {
+      email: string;
+      id_role: string;
+    } = req.body;
+    const { users } = await userService.getMe(email, id_role);
+
+    if (users) {
+      const { profile_cv } = await userService.getProfileCV(users.id_user);
+      const { followers, total_follow } = await userService.getAllFollowUser(
+        users.id_user
+      );
+      const { savedList, total } = await userService.getAllSaveJob(
+        users.id_user
+      );
+      const { job_suggets_for_you } = await jobService.getSuggetJobsForYou(
+        users.city
+      );
+
+      const { notificationList, total_notification } =
+        await notificationService.getNotification(users.id_user);
+
+      res.send({
+        users,
+        profile_cv,
+        notification: { notificationList, total_notification },
+        followList: {
+          followers,
+          total_follow,
+        },
+        jobSuggets: { job_suggets_for_you },
+        saveJobList: {
+          savedList,
+          total,
+        },
+      });
+    }
+  }),
 };
 
 export default userController;

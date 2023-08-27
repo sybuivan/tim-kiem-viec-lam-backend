@@ -11,31 +11,6 @@ var bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 const authService = {
-  getMe: async (email: string, id_role: string) => {
-    const users: any = await queryDb(
-      'select * from users where email=? and id_role=?',
-      [email, id_role]
-    );
-    if (_.isEmpty(users))
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Không tìm thấy tài khoản người dùng'
-      );
-    const lock: any = await queryDb(
-      'select * from users where email=? and id_role=? and is_lock = 1',
-      [email, id_role]
-    );
-    if (!_.isEmpty(lock))
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Tài khoản của bạn đã bị khóa'
-      );
-    const { password, ...orther } = users[0];
-
-    return {
-      users: orther,
-    };
-  },
   login: async (body: IUser, id_role?: 'user' | 'admin') => {
     const { email, password } = body;
     const user: any = await queryDb(

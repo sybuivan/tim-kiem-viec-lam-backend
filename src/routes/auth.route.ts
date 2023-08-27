@@ -24,11 +24,4 @@ router.put(
   authController.updateUser
 );
 
-router.post(
-  '/get-me',
-  isAuth,
-  validate(authValidation.getMe),
-  authController.getMe
-);
-
 export default router;

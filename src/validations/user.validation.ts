@@ -41,6 +41,12 @@ const userValidation = {
       id_job: Joi.string().required(),
     }),
   },
+  getMe: {
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      id_role: Joi.string().valid('user', 'company', 'admin').required(),
+    }),
+  },
 };
 
 export default userValidation;

@@ -2,12 +2,6 @@ import Joi from 'joi';
 import { messageRequired } from '../utils/comon';
 
 const authValidation = {
-  getMe: {
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      id_role: Joi.string().valid('user', 'company', 'admin').required(),
-    }),
-  },
   login: {
     body: Joi.object().keys({
       email: Joi.string().required().email(),

@@ -1,6 +1,5 @@
+import { sign, verify } from 'jsonwebtoken';
 import freeze from '../configs/freeze';
-
-const { sign, verify } = require('jsonwebtoken');
 
 const generateToken = (payload: any) => {
   const { id_user, fullName, id_role } = payload;
