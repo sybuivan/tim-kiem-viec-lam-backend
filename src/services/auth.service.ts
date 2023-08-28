@@ -81,46 +81,6 @@ const authService = {
       );
     }
   },
-
-  updateUser: async (body: IUser) => {
-    const {
-      email,
-      fullName,
-      gender,
-      phone,
-      birthDay,
-      city,
-      id_user,
-      address,
-      avatar = 'avatar.jpg',
-    } = body;
-    const user: any = await queryDb('select * from users where id_user=?', [
-      id_user,
-    ]);
-    if (_.isEmpty(user))
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Không tìm thấy tài khoản người dùng'
-      );
-    const rows: any = await queryDb(
-      'UPDATE users set fullName = ?, birthDay= ?, address= ?, phone= ?, gender= ?, city= ?, avatar= ? where id_user = ?',
-      [fullName, birthDay, address, phone, gender, city, avatar, id_user]
-    );
-    if (rows.insertId >= 0) {
-      const users: any = await queryDb('select * from users where email=?', [
-        email,
-      ]);
-      const { password, ...orther } = users[0];
-      return {
-        users: orther,
-      };
-    } else {
-      throw new ApiError(
-        httpStatus.BAD_REQUEST,
-        'Chỉnh sửa thông tin không thành công'
-      );
-    }
-  },
 };
 
 export default authService;

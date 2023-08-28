@@ -18,10 +18,4 @@ router.post(
   authController.register
 );
 
-router.put(
-  '/update-profile',
-  validate(authValidation.updateProfile),
-  authController.updateUser
-);
-
 export default router;

@@ -1,10 +1,7 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import httpStatus from 'http-status';
-import jwt from 'jsonwebtoken';
 import ApiError from '../utils/ApiError';
-import { validateRefreshToken, validateToken } from './JWT';
-import freeze from '../configs/freeze';
-import { IAuthUser } from '../types/auth';
+import { validateToken } from './JWT';
 
 export const isAuth = async (req: any, res: Response, next: NextFunction) => {
   try {
@@ -29,22 +26,5 @@ export const isAuth = async (req: any, res: Response, next: NextFunction) => {
         'Login timeout. Please login again !'
       )
     );
-  }
-};
-
-export const isAdmin = (req: any, res: Response, next: NextFunction) => {
-  if (req.user && req.user.id_role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({ error: 'Not have access admin' });
-  }
-};
-
-export const isUser = (req: any, res: Response, next: NextFunction) => {
-  console.log({ req: req.user });
-  if (req.user && req.user.id_role === 'user') {
-    next();
-  } else {
-    res.status(403).json({ error: 'Not have access user' });
   }
 };

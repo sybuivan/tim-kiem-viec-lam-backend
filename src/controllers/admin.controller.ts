@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import httpStatus from 'http-status';
+import { Role } from '../constants/role';
 import adminService from '../services/admin.service';
 import userService from '../services/user.service';
 import { catchAsync } from '../utils/catchAsync';
@@ -9,7 +10,7 @@ interface MulterRequest extends Request {
 }
 
 interface IQueryUser {
-  id_role_params: 'ALL' | 'user' | 'admin' | 'company';
+  id_role_params: 'ALL' | Role;
   page: number;
 }
 

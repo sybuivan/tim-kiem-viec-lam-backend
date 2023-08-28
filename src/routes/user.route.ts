@@ -1,6 +1,7 @@
 import express from 'express';
 import userController from '../controllers/user.controller';
-import { isAuth, isUser } from '../middlewares/authencation';
+import { isAuth } from '../middlewares/authencation';
+import { isUser } from '../middlewares/authorization';
 import { upload, uploadFile } from '../middlewares/upload';
 import validate from '../middlewares/validate';
 import userValidation from '../validations/user.validation';
@@ -61,14 +62,14 @@ router.delete(
   userController.unFollowCompany
 );
 router.get(
-  '/get-all-follow-user',
+  '/get-all-follow-users',
   isAuth,
   isUser,
   userController.getAllFollowUser
 );
 
 router.get('/get-all-saved-user', isAuth, isUser, userController.getAllSaveJob);
-router.get('/get-notification', isAuth, isUser, userController.getNotification);
+router.get('/get-notification', isAuth, userController.getNotification);
 router.put(
   '/update-notification/:id_notificatiton',
   isAuth,
@@ -104,7 +105,7 @@ router.delete(
   userController.unSaveJob
 );
 
-router.get(
+router.post(
   '/get-me',
   isAuth,
   validate(userValidation.getMe),

@@ -1,17 +1,18 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
+import { Role } from '../constants/role';
+import { generateToken } from '../middlewares/JWT';
 import { authService } from '../services';
-import { IUser } from '../types/auth';
-import { catchAsync } from '../utils/catchAsync';
-import userService from '../services/user.service';
 import jobService from '../services/job.service';
 import notificationService from '../services/notification.service';
-import { generateToken } from '../middlewares/JWT';
+import userService from '../services/user.service';
+import { IUser } from '../types/auth';
+import { catchAsync } from '../utils/catchAsync';
 
 const authController = {
   login: catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: IUser = req.body;
-    const id_role = 'user';
+    const id_role = Role.User;
     const { users, message } = await authService.login(
       {
         email,
@@ -86,17 +87,6 @@ const authController = {
         id_role,
       });
 
-      if (users) {
-        res.status(httpStatus.CREATED).send({
-          users,
-        });
-      }
-    }
-  ),
-
-  updateUser: catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { users } = await authService.updateUser(req.body);
       if (users) {
         res.status(httpStatus.CREATED).send({
           users,

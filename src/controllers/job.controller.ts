@@ -14,7 +14,7 @@ interface QueryDelete {
 
 interface IQueryJob {
   city: string;
-  companyfield: string;
+  companyField: string;
   keyword: string;
   id_range: string;
   id_experience: string;

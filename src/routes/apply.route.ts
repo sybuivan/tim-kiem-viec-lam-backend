@@ -1,9 +1,8 @@
 import express from 'express';
 import applyController from '../controllers/apply.controller';
-import { isAuth, isUser } from '../middlewares/authencation';
+import { isAuth } from '../middlewares/authencation';
+import { isUser } from '../middlewares/authorization';
 import { uploadFile } from '../middlewares/upload';
-import validate from '../middlewares/validate';
-import applyValidation from '../validations/apply.validation';
 
 const router = express.Router();
 

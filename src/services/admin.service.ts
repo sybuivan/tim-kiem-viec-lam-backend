@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
-
 import queryDb from '../configs/db';
+import { Role } from '../constants/role';
 import ApiError from '../utils/ApiError';
 import { findUserByid } from './common.service';
 
@@ -9,7 +9,7 @@ const LIMIT = 20;
 var _ = require('lodash');
 
 interface IParams {
-  id_role_params: 'ALL' | 'user' | 'company' | 'admin';
+  id_role_params: 'ALL' | Role;
   page: number;
 }
 
@@ -69,7 +69,7 @@ const adminService = {
     const rows: any = await queryDb(
       `SELECT *,company.city as city_company, company.address as address FROM company
        JOIN users ON users.id_user = company.id_company and id_role =?
-       JOIN companyField ON company.idCompanyField  = companyField.id_companyField
+       JOIN companyfield ON company.idCompanyField  = companyfield.id_companyField
        WHERE company.active_status = 0;
     `,
       [id_role]
@@ -86,7 +86,7 @@ const adminService = {
     const rows: any = await queryDb(
       `SELECT *,company.city as city_company FROM company
        JOIN users ON users.id_user = company.id_company and id_role =?
-       JOIN companyField ON company.idCompanyField  = companyField.id_companyField
+       JOIN companyfield ON company.idcompanyField  = companyfield.id_companyField
        WHERE company.active_status = 1 and users.id_user =?;
     `,
       [id_role, id_company]
@@ -124,7 +124,7 @@ const adminService = {
   settingCommon: async (body: { type: string; id: string; name: string }) => {
     const { type, name, id } = body;
     switch (type) {
-      case 'companyfield': {
+      case 'companyField': {
         const item: any = await queryDb(
           'select * from companyfield where id_companyField=? and name_field=?',
           [id, name]
@@ -136,7 +136,7 @@ const adminService = {
           );
 
         const rows: any = await queryDb(
-          'insert into companyfield(id_companyField,name_field) values(?,?)',
+          'insert into companyField(id_companyField,name_field) values(?,?)',
           [id, name]
         );
         return;
@@ -173,7 +173,7 @@ const adminService = {
   }) => {
     const { type, name, id } = body;
     switch (type) {
-      case 'companyfield': {
+      case 'companyField': {
         const rows: any = await queryDb(
           'update companyfield set name_field =? where id_companyField=?',
           [name, id]
@@ -201,9 +201,9 @@ const adminService = {
 
   statistical: async () => {
     const jobs_by_industry: any = await queryDb(`
-    SELECT companyField.name_field, COUNT(*) AS job_count
+    SELECT companyfield.name_field, COUNT(*) AS job_count
     FROM job
-    INNER JOIN companyField ON job.id_field = companyField.id_companyField
+    INNER JOIN companyfield ON job.id_field = companyfield.id_companyField
     GROUP BY id_field;
     `);
 

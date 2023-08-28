@@ -1,13 +1,14 @@
 import express, { Request, Response, Express } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import routes from './routes';
 import { errorConverter, errorHandler } from './middlewares/error';
 import config from './configs/connectDb';
-const puppeteer = require('puppeteer');
+import { swaggerSpec } from './swagger/swagger-setup';
 const path = require('path');
+const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
 
 dotenv.config();
 const isDev = process.env.NODEJS_APP_NODE_ENV === 'development' ? true : false;
@@ -50,8 +51,12 @@ app.use(
   })
 );
 
+const swaggerDocument = require('./swagger/swagger_output.json');
 // v1 api routes
 app.use('/api/v1', routes);
+/* Swagger */
+app.use('/api-docs', swaggerUi.serve);
+app.get('/api-docs', swaggerUi.setup(swaggerSpec));
 
 const port = process.env.PORT || 5000;
 

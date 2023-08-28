@@ -104,7 +104,7 @@ const companyService = {
     );
 
     const rows: any = await queryDb(
-      'insert into company(id_company,address,city,name_company,total_people,faxCode,idCompanyField) values(?,?,?,?,?,?,?)',
+      'insert into company(id_company,address,city,name_company,total_people,faxCode,idcompanyField) values(?,?,?,?,?,?,?)',
       [
         id_company,
         address,
@@ -139,7 +139,7 @@ const companyService = {
       name_company,
       cover_image,
       link_website,
-      idCompanyField,
+      idcompanyField,
       city,
       fullName,
       phone,
@@ -163,7 +163,7 @@ const companyService = {
     }
 
     const rows: any = await queryDb(
-      'UPDATE company set cover_image=?, address= ?, introduce= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idCompanyField=?, city=?, faxCode=? where id_company = ?',
+      'UPDATE company set cover_image=?, address= ?, introduce= ?, logo= ?, total_people= ?, name_company=?,link_website=?, idcompanyField=?, city=?, faxCode=? where id_company = ?',
       [
         coverImage,
         address,
@@ -172,7 +172,7 @@ const companyService = {
         total_people,
         name_company,
         link_website,
-        idCompanyField,
+        idcompanyField,
         city,
         faxCode,
         id_company,
@@ -258,14 +258,14 @@ const companyService = {
     id_city: string;
   }) => {
     const { id_city = '', id_company_field = '', keyword = '' } = queryParams;
-    const sqlCompanyfield =
+    const sqlcompanyField =
       id_company_field &&
       `and profile_cv.id_company_field ='${id_company_field}' `;
     const sqlCity = id_city && `and profile_cv.id_city  = '${id_city}' `;
     const sqlKeyword = keyword && `and users.fullName = '${keyword}' `;
 
     const rows: any = await queryDb(
-      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlCompanyfield}${sqlCity}${sqlKeyword} group by users.id_user`,
+      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyField, profile_cv where profile_cv.id_company_field=companyField.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlcompanyField}${sqlCity}${sqlKeyword} group by users.id_user`,
       []
     );
 
@@ -466,16 +466,16 @@ const companyService = {
       apply.id_profile,
       profile_cv.file_cv as file_online, apply.file_cv as file_desktop,
       users.id_user, apply.created_at, users.fullName, 
-      birthDay, status,introducing_letter,users.email,typeRank.name_rank
+      birthDay, status,introducing_letter,users.email,typerank.name_rank
       FROM
         apply
         LEFT JOIN profile_cv ON profile_cv.id_profile = apply.id_profile
         LEFT JOIN job ON apply.id_job = job.id_job
-        LEFT JOIN users on (users.id_user = apply.id_user), typeRank
+        LEFT JOIN users on (users.id_user = apply.id_user), typerank
       WHERE
         apply.id_job = job.id_job
         AND job.id_company=?
-        AND typeRank.id_rank = job.id_type
+        AND typerank.id_rank = job.id_type
       ${sqlId_job} ${sqlStatus_job}`,
       [id_company]
     );
