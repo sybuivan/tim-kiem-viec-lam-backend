@@ -23,14 +23,11 @@ The backend of the Job Search App is built using the following technologies:
    <code>https://drive.google.com/file/d/1vrp5-qDYZHlVx1IN9vOaQJaJNGLCudNL/view?usp=sharing</code>
 
 2. Using SQL in XAMPP
-   <code>
-
    - Open a web browser and navigate to http://localhost/phpmyadmin.
    - On the MySQL database management interface (phpMyAdmin), click on the "Database" tab.
    - Enter the new database name as "db_tim-kiem-viec-lam" in the "Create database" field.
    - Click on the "Create" button to create the new database.
    - import database
-     </code>
 
 3. Configure environment variables in `.env` for database connections.
    NODEJS_APP_NODE_ENV=development
