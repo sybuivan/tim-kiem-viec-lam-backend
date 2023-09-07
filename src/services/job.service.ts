@@ -183,8 +183,8 @@ const jobService = {
         WHEN service.urgent_recruitment = 1 THEN 1
         ELSE 0
       END AS urgency 
-      from job, company,rangewage,experience,companyfield, typeRank,service, service_history,working_form 
-      where id_job=? and  typeRank.id_rank = job.id_type 
+      from job, company,rangewage,experience,companyfield, typerank,service, service_history,working_form 
+      where id_job=? and  typerank.id_rank = job.id_type 
       AND service.id_service = service_history.id_service
       AND working_form.id_working_form = job.id_working_form
       AND job.id_history = service_history.id_history
@@ -205,9 +205,9 @@ const jobService = {
 
     const jobDeadline: any = await queryDb(
       `SELECT *
-      FROM job, company, rangewage, experience, companyfield, typeRank
+      FROM job, company, rangewage, experience, companyfield, typerank
       WHERE id_job = ? 
-        AND typeRank.id_rank = job.id_type 
+        AND typerank.id_rank = job.id_type 
         AND job.id_field = companyfield.id_companyfield
         AND rangewage.id_range = job.id_range
         AND company.id_company = job.id_company 
@@ -484,10 +484,10 @@ const jobService = {
     let sql = limit ? 'limit 9' : '';
 
     const rows: any = await queryDb(
-      `select COUNT(job.id_job) as total_count,typeRank.name_rank,typeRank.id_rank from job, typeRank
-      WHERE job.id_type = typeRank.id_rank and job.is_lock = 0
+      `select COUNT(job.id_job) as total_count,typerank.name_rank,typerank.id_rank from job, typerank
+      WHERE job.id_type = typerank.id_rank and job.is_lock = 0
       and DATE(deadline) > CURDATE()
-      GROUP BY typeRank.id_rank
+      GROUP BY typerank.id_rank
       order by total_count desc
       LIMIT 10`,
       []

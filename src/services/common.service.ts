@@ -42,7 +42,7 @@ export const getAllFieldService = async () => {
   const companyfield: any = await queryDb('select * from companyfield');
   const experiencefield: any = await queryDb('select * from experience');
   const rangewagefield: any = await queryDb('select * from rangewage');
-  const typerankfield: any = await queryDb('select * from typeRank');
+  const typerankfield: any = await queryDb('select * from typerank');
   const workingformfield: any = await queryDb('select * from working_form');
   const cityfield: any = await queryDb('select * from city');
   return {

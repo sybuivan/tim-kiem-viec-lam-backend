@@ -265,7 +265,7 @@ const companyService = {
     const sqlKeyword = keyword && `and users.fullName = '${keyword}' `;
 
     const rows: any = await queryDb(
-      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyField, profile_cv where profile_cv.id_company_field=companyField.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlcompanyField}${sqlCity}${sqlKeyword} group by users.id_user`,
+      `select fullName,phone,users.id_user,email,name_field, file_name, file_cv, avatar from users,companyfield, profile_cv where profile_cv.id_company_field=companyfield.id_companyField and users.id_user = profile_cv.id_user and is_public = 1 ${sqlcompanyField}${sqlCity}${sqlKeyword} group by users.id_user`,
       []
     );
 
