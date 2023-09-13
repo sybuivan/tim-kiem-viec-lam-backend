@@ -9,6 +9,7 @@ import { swaggerSpec } from './swagger/swagger-setup';
 const path = require('path');
 const dotenv = require('dotenv');
 const swaggerUi = require('swagger-ui-express');
+const cookieParser = require('cookie-parser');
 
 dotenv.config();
 const isDev = process.env.NODEJS_APP_NODE_ENV === 'development' ? true : false;
@@ -44,6 +45,7 @@ app.use('/', express.static('public'));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use(
   bodyParser.urlencoded({

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { Role } from '../constants/role';
-import { generateToken } from '../middlewares/JWT';
+import { generateToken, validateRefreshToken } from '../middlewares/JWT';
 import { authService } from '../services';
 import jobService from '../services/job.service';
 import notificationService from '../services/notification.service';
@@ -22,7 +22,7 @@ const authController = {
     );
 
     if (users) {
-      const { accessToken } = generateToken(users);
+      const { accessToken, refreshToken } = generateToken(users);
       const { profile_cv } = await userService.getProfileCV(users.id_user);
       const { followers, total_follow } = await userService.getAllFollowUser(
         users.id_user
@@ -36,6 +36,16 @@ const authController = {
 
       const { notificationList, total_notification } =
         await notificationService.getNotification(users.id_user);
+
+      res.cookie('refreshToken', refreshToken, {
+        secure: true,
+        httpOnly: true,
+      });
+      res.cookie('accessToken', accessToken, {
+        secure: true,
+        httpOnly: true,
+      });
+
       res.send({
         users,
         profile_cv,
@@ -50,6 +60,7 @@ const authController = {
           total,
         },
         accessToken,
+        refreshToken,
       });
     }
   }),
@@ -91,6 +102,22 @@ const authController = {
         res.status(httpStatus.CREATED).send({
           users,
         });
+      }
+    }
+  ),
+
+  refreshToken: catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const refreshToken = req.body.refreshToken;
+
+      if (!refreshToken) {
+        return res.sendStatus(401);
+      }
+      const decoded = validateRefreshToken(refreshToken);
+      console.log({ decoded });
+      if (decoded) {
+        const { accessToken, refreshToken } = generateToken(decoded);
+        res.json({ accessToken, refreshToken });
       }
     }
   ),

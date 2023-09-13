@@ -21,3 +21,8 @@ export interface IAuthUser {
   id_user: number;
   id_role: string;
 }
+
+export interface IGenerateToken {
+  accessToken: string;
+  refreshToken: string;
+}

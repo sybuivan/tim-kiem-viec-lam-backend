@@ -1,7 +1,8 @@
 import { sign, verify } from 'jsonwebtoken';
 import freeze from '../configs/freeze';
+import { IGenerateToken } from '../types/auth';
 
-const generateToken = (payload: any) => {
+const generateToken = (payload: any): IGenerateToken => {
   const { id_user, fullName, id_role } = payload;
 
   const accessToken = sign({ id_user, fullName, id_role }, freeze.JWT_SECRET, {
@@ -22,9 +23,24 @@ const generateToken = (payload: any) => {
 const validateToken = (accessToken: any) => {
   const key = freeze.JWT_SECRET;
   try {
-    const validToken = verify(accessToken, key);
-    return validToken;
+    const decodedToken = verify(accessToken, key);
+    if (isTokenExpired(decodedToken)) {
+      return false;
+    } else {
+      return decodedToken;
+    }
   } catch (error) {
+    return false;
+  }
+};
+
+const isTokenExpired = (decodedToken: any): boolean => {
+  const expirationTime = decodedToken.exp;
+  const currentTime = Math.floor(Date.now() / 1000);
+
+  if (expirationTime < currentTime) {
+    return true;
+  } else {
     return false;
   }
 };

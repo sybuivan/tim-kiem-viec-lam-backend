@@ -3,11 +3,11 @@ import mysql from 'mysql2/promise';
 
 const config: any = {
   db: {
-    host: process.env.HOST_DOMAIN || 'mysql-142228-0.cloudclusters.net',
+    host: process.env.HOST_DOMAIN || 'mysql-143565-0.cloudclusters.net',
     user: process.env.USER || 'admin',
-    password: process.env.PASSWORD || 'TrG0HPks',
+    password: process.env.PASSWORD || '83fNhnK7',
     database: process.env.DATABASE || 'db_tim-kiem-viec-lam',
-    port: process.env.PORT ?? 10029,
+    port: process.env.PORT ?? 15497,
   },
   listPerPage: 10,
 };
