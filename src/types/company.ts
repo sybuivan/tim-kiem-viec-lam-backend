@@ -17,7 +17,7 @@ export interface ICompany {
   city: string;
   faxCode?: string;
   password?: string;
-  idcompanyField?: string;
+  idCompanyField?: string;
 }
 export interface IPayloadRegisterCompany {
   email: string;
