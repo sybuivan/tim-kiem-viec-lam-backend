@@ -1,7 +1,7 @@
 import express from 'express';
 import userController from '../controllers/user.controller';
 import { isAuth } from '../middlewares/authencation';
-import { isUser } from '../middlewares/authorization';
+import { isUser, isUserCompany } from '../middlewares/authorization';
 import { upload, uploadFile } from '../middlewares/upload';
 import validate from '../middlewares/validate';
 import userValidation from '../validations/user.validation';
@@ -43,7 +43,7 @@ router.get('/get-profile-cv', isAuth, isUser, userController.getProfileCV);
 router.get(
   '/get-cv-by-id/:id_profile',
   isAuth,
-  isUser,
+  isUserCompany,
   userController.getProfileCVById
 );
 
@@ -73,13 +73,13 @@ router.get('/get-notification', isAuth, userController.getNotification);
 router.put(
   '/update-notification/:id_notificatiton',
   isAuth,
-  isUser,
+  isUserCompany,
   userController.updateNotification
 );
 router.delete(
   '/delete-notification/:id_notificatiton',
   isAuth,
-  isUser,
+  isUserCompany,
   userController.deleteNotification
 );
 

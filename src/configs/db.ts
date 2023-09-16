@@ -6,7 +6,6 @@ const pool = mysql.createPool(config.db);
 
 async function queryDb(sql: any, params?: any) {
   const connection = await pool.getConnection();
-  // const [results] = await connection.execute<RowDataPacket[]>(sql, params);
   try {
     const [results] = await connection.query<RowDataPacket[]>(sql, params);
 

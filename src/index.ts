@@ -1,10 +1,9 @@
-import express, { Request, Response, Express } from 'express';
-import cors from 'cors';
-import morgan from 'morgan';
 import bodyParser from 'body-parser';
-import routes from './routes';
+import cors from 'cors';
+import express, { Express, Request, Response } from 'express';
+import morgan from 'morgan';
 import { errorConverter, errorHandler } from './middlewares/error';
-import config from './configs/connectDb';
+import routes from './routes';
 import { swaggerSpec } from './swagger/swagger-setup';
 const path = require('path');
 const dotenv = require('dotenv');
@@ -53,7 +52,6 @@ app.use(
   })
 );
 
-const swaggerDocument = require('./swagger/swagger_output.json');
 // v1 api routes
 app.use('/api/v1', routes);
 /* Swagger */
