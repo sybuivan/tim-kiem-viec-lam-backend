@@ -372,7 +372,7 @@ const jobService = {
     if (_.isEmpty(queryParams)) {
       const rows: any = await queryDb(
         `select name_job, city.name_city, name_company, job.id_job, name_range,job.created_at,
-        job.deadline,DATEDIFF(deadline,job.created_at) AS days_left,
+        job.deadline,DATEDIFF(deadline,CURRENT_DATE) AS days_left,
         CASE
           WHEN service.urgent_recruitment = 1 THEN 1
           ELSE 0
@@ -409,7 +409,7 @@ const jobService = {
 
     const rows: any = await queryDb(
       `select name_job, city.name_city, name_company, job.id_job, name_range,job.created_at,
-      job.deadline,DATEDIFF(deadline,job.created_at) AS days_left,
+      job.deadline,DATEDIFF(deadline,CURRENT_DATE) AS days_left,
       CASE
         WHEN service.urgent_recruitment = 1 THEN 1
         ELSE 0
@@ -433,7 +433,7 @@ const jobService = {
     const data = dataJobs(rows).slice(startPage, LIMIT + startPage);
 
     const rowsList: any = await queryDb(
-      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo ,DATEDIFF(deadline,created_at) AS days_left
+      `select name_job, city.name_city, name_company, job.id_job, name_range, work_location, logo ,DATEDIFF(deadline,CURRENT_DATE) AS days_left
       from job, company, rangewage, city,citiesjob 
       where city.id_city = citiesjob.id_city and job.id_company = company.id_company 
       and job.id_range = rangewage.id_range
